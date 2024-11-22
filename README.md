@@ -2,7 +2,7 @@
 # Tugas Besar 2 IF2123 - Aljabar Linear dan Geometri
 Image and Music Information Retrieval : Tugas Besar 2 IF2123 Aljabar Linier dan Geometri
 
-## Kelompok 6 - Chaos Order
+## Kelompok 49 - Kratingdaeng
 
 <div align="center">
 

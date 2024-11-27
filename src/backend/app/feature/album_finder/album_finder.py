@@ -8,6 +8,18 @@ from typing import *
 Matrix = np.ndarray
 String = str
 Vector = List[float]
+VectorList = List[Vector]
+
+# CLASS
+class ImageData:
+    def __init__(self, filename : String, pixels: Vector)-> None:
+        self.filename = filename
+        self.pixels = pixels
+        self.size =  int(np.sqrt(len(self.pixels)))if self.pixels is not None else None
+        self.euclid_distance = None
+    def __str__(self):
+        return '\n'.join(f"{key}: {value}" for key, value in self.__dict__.items())
+
 
 ################# Image Processing and Loading #################
 # Mendapatkan Matrix grayscale
@@ -25,7 +37,7 @@ def extract_grayscale(file_path : String) -> Matrix:
     return grayscale
 
 # Menyamakan ukuran dari gambar (mengubah satu gambar menjadi ukuran tertentu)
-def image_normalization(grayscale : Matrix) -> Matrix:
+def normalize_image(grayscale : Matrix) -> Matrix:
     img = PIL.fromarray(grayscale)
     resized_img = img.resize((64,64), PIL.Resampling.BILINEAR) # Resizing
     return np.array(resized_img) # Return numpy array
@@ -34,40 +46,62 @@ def matrix_to_1d(resized : Matrix) -> Vector:
     flattened = []
     for row in resized:
         for value in row:
-            flattened.append(value)
+            flattened.append(value) # append setiap row ke dalam 1 row saja
     return np.array(flattened)      # numpy array untuk speed efficiency
 
-
-
-
-
-
-###################### DEBUGGING/TESTING ######################
-# Mengubah image menjadi grayscale  
-def test_convert_img_to_grayscale(file_path : str) -> None:
+# Menyatukan semua proses diatas
+def preprocess_image(file_path : String) -> Vector:
     grayscale = extract_grayscale(file_path)
-    gray_img = PIL.fromarray(grayscale)
+    resized = normalize_image(grayscale)
+    vector = matrix_to_1d(resized)
+    return vector
 
-    test_directory_assert()
+# Memproses data-data gambar dataset
+def load_dataset() -> list[ImageData]:
+    dataset_list = []
+    directory = "images"
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        image = ImageData(filename, preprocess_image(file_path))
+        dataset_list.append(image)
+    return dataset_list
 
-    gray_img.save("result/dinogra.png")    # Save into img
-    print("Saved succesfully")
+# Memproses data gambar query
+def load_query(file_path) -> ImageData:
+    filename = os.path.basename(file_path)
+    image = ImageData(filename, preprocess_image(file_path))
+    return image
 
-def test_resize_img_to_64(file_path):
-    img = PIL.open(file_path).convert("RGB")
-    resized_img = img.resize((64,64), PIL.Resampling.BILINEAR) # Resizing
+
+################# Data Centering (Standardization) #################
+
+def get_pixel_means(dataset : list[ImageData]) -> Vector:
+    pixel_matrix = np.array([image.pixels for image in dataset])    
+    return np.mean(pixel_matrix, axis=0)  # Menghitung rata2 pixel dataset
+
+def standardize_images(dataset : list[ImageData]) -> None:
+    # Ubah vector menjadi matrix, dimana setiap baris adalah image berbeda
+    # dan setiap kolom adalah pixel2 nya matrix N*jumlah_pixel
+    pixel_matrix = np.array([image.pixels for image in dataset])
+    pixel_means = get_pixel_means(dataset)
+    standardized_pixels_list = pixel_matrix - pixel_means # Standarisasi Pixel
     
-    test_directory_assert()
-    
-    resized_img.save("result/dinogra.png")    # Save into img
-    print("Saved succesfully")
+    # Perbarui pixel pada dataset
+    for image, standardized_pixels in zip(dataset, standardized_pixels_list):
+        image.pixels = standardized_pixels
 
 ################# UTILITY #################
-def test_directory_assert():
-    output_dir = "result"                   # Ensure directory exists
-    os.makedirs(output_dir, exist_ok=True)
+def displayObjectList(list : list[object]) -> None :
+    for object in list:
+        print(object)
+        print()
 
-# test_convert_img_to_grayscale("images/dino.png")
-# test_resize_img_to_64("images/dino.png")
+dataset = load_dataset()
+displayObjectList(dataset)
 
-# test = matrix_to_1d(image_normalization(extract_grayscale("images/dino.png")))
+standardize_images(dataset)
+displayObjectList(dataset)
+
+
+
+

@@ -4,7 +4,7 @@ import os
 from mido import MidiFile
 import matplotlib.pyplot as plt
 
-# Baca wav file, return list of pitch contour
+# Baca wav file, return list pitch contour
 def preprocess_wav(file_path):
     audio_data, sample_rate = librosa.load(file_path)
     pitches, magnitudes = librosa.piptrack(y=audio_data, sr=sample_rate)
@@ -21,7 +21,16 @@ def preprocess_wav(file_path):
             pitch_contour.append(0) 
     return pitch_contour
     
+# Baca midi file, return list of msg/pitch values (0-127)
+def preprocess_midi(file_path):
+    midi = MidiFile(file_path)
+    melody = []
 
+    for track in midi.tracks:
+        for msg in track:
+            if msg.type == 'note_on' and msg.velocity > 0:
+                melody.append(msg.note)
+    return melody
 
 def audio_processing(pitch_contour):
     pitches = [p for p in pitch_contour if p > 0]

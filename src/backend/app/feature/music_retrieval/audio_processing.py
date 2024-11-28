@@ -4,7 +4,7 @@ import os
 from mido import MidiFile
 import matplotlib.pyplot as plt
 
-# Baca wav file, return list pitch data
+# PREPROCESS WAV
 def preprocess_wav(file_path):
     audio_data, sample_rate = librosa.load(file_path)
     pitches, magnitudes = librosa.piptrack(y=audio_data, sr=sample_rate)
@@ -21,7 +21,7 @@ def preprocess_wav(file_path):
             pitch_data.append(0) 
     return pitch_data
     
-# Baca midi file, return list pitch data
+# PREPROCESS MIDI
 def preprocess_midi(file_path):
     midi = MidiFile(file_path)
     pitch_data = []
@@ -32,7 +32,7 @@ def preprocess_midi(file_path):
                 pitch_data.append(msg.note)
     return pitch_data
 
-# Bagi data menjadi segmen-segmen berdasarkan window dan step
+# APPLY SLIDING WINDOW
 def apply_sliding_window(data, window, step):
     segments = []
     for i in range(0, len(data) + 1 - window, step):
@@ -40,6 +40,7 @@ def apply_sliding_window(data, window, step):
         segments.append(segment)
     return segments;
 
+# MAIN AUDIO PROCESSING FUNCTION
 def get_processed_audio(pitch_data):
     # Windowing
     pitches = apply_sliding_window(pitch_data, 40, 8)
@@ -60,8 +61,19 @@ def get_processed_audio(pitch_data):
             processed_pitch_Data.append(0)
     return processed_pitch_Data
 
+# CREATE HISTOGRAM
+def create_histogram(data, num_bins):
+    histogram = np.histogram(num_bins, dtype=int)
+
+    for value in data:
+        if (0 <= value < num_bins):
+            histogram[value] += 1
+    return histogram
 
 
+# EXTRACT FEATURE
+def get_extracted_feature(notes):
+    
 
 # TESTING
 audio_file = "music_files/twinklewav.wav"

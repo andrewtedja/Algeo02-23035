@@ -43,9 +43,8 @@ def apply_sliding_window(data, window, step):
 # MAIN AUDIO PROCESSING FUNCTION
 def get_processed_audio(pitch_data):
     # Windowing
-    pitches = apply_sliding_window(pitch_data, 40, 8)
-
-    pitches = [p for p in pitches if p > 0]
+    segments = apply_sliding_window(pitch_data, 40, 8)
+    pitches = [p for segment in segments for p in segment if p > 0]
     if len(pitches) == 0:
         print("Pitches list is empty.")
         return pitch_data
@@ -56,44 +55,50 @@ def get_processed_audio(pitch_data):
     processed_pitch_data = []
     for p in pitch_data:
         if p > 0:
-            processed_pitch_Data.append((p - mu) / sigma)
+            processed_pitch_data.append((p - mu) / sigma)
         else:
-            processed_pitch_Data.append(0)
-    return processed_pitch_Data
+            processed_pitch_data.append(0)
+    return processed_pitch_data
 
 # CREATE HISTOGRAM
 def create_histogram(data, num_bins):
-    histogram = np.histogram(num_bins, dtype=int)
+    histogram = np.zeros(num_bins, dtype=int)
 
     for value in data:
         if (0 <= value < num_bins):
             histogram[value] += 1
     return histogram
 
-
 # EXTRACT FEATURE
-def get_extracted_feature(notes):
-    
+
 
 # TESTING
-audio_file = "music_files/twinklewav.wav"
+audio_file = "src/backend/app/feature/music_retrieval/music_files/twinklewav.wav"
 
 if os.path.exists(audio_file):
     print("File exists:", os.path.exists(audio_file))
     pitch_data = preprocess_wav(audio_file)
-    processed_pitch_Data = get_processed_audio(pitch_data)
+    processed_pitch_data = get_processed_audio(pitch_data)
 
     print("Original Pitch Data:", pitch_data)
-    print("Processed Pitch Data:", processed_pitch_Data)
+    print("Processed Pitch Data:", processed_pitch_data)
 
-    # Plot test
-    plt.plot(pitch_data, label="Original Pitch")
-    plt.plot(processed_pitch_Data, label="Normalized Pitch")
-    plt.xlabel('Frame Index')
-    plt.ylabel('Pitch Value')
-    plt.title('Pitch Data Comparison')
-    plt.legend()
-    plt.show()
+    # # Plot test
+    # plt.plot(pitch_data, label="Original Pitch")
+    # plt.plot(processed_pitch_data, label="Normalized Pitch")
+    # plt.xlabel('Frame Index')
+    # plt.ylabel('Pitch Value')
+    # plt.title('Pitch Data Comparison')
+    # plt.legend()
+    # plt.show()
 
 else:
     print(f"Gada Filenya")
+
+# TEST HISTOGRAM
+# pitch_data = [60, 62, 60, 65, 67, 60, 62, 62, 70]
+# num_bins = 128
+
+# histogram = create_histogram(pitch_data, num_bins)
+
+# print(f"Histogram Data (non-zero bins): {histogram}")

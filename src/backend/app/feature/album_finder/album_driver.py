@@ -42,5 +42,5 @@ def test_directory_assert():
 # test = matrix_to_1d(image_normalization(extract_grayscale("images/dino.png")))
 
 dataset = load_dataset()
-standardize_images(dataset)
+# standardize_images(dataset)
 test_dataset_processing(dataset)

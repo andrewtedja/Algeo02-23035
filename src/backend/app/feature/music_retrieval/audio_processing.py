@@ -114,6 +114,7 @@ def extract_features(pitch_data):
 
     return vector_combined_features
 
+# GET COSINE SIMILARITY
 def get_cosine_similarity(vector_A, vector_B):
     dot_product = np.dot(vector_A, vector_B)
     norm_vector_A = np.linalg.norm(vector_A)
@@ -127,18 +128,25 @@ def get_cosine_similarity(vector_A, vector_B):
     cosine_similarity = dot_product / norm_product
     return cosine_similarity
 
+# MAIN
 def main():
     # upload_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
-    upload_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklewav.wav"
-    dataset_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
+    upload_audio_path = "test/music_files/twinklewav.wav"
+    dataset_audio_path = "test//twinklemidi.mid"
 
-    if os.path.exists(upload_audio_path):
-        print("File exists:", os.path.exists(upload_audio_path))
+    if (os.path.exists(upload_audio_path)) and (os.path.exists(dataset_audio_path)):
+        print("File exists (upload):", os.path.exists(upload_audio_path))
+        print("File exists (dataset):", os.path.exists(dataset_audio_path))
         
         # Preprocess wav/midi -> Get processed audio -> Extract features -> Get cosine similarity
-        processed_pitch_data = get_processed_audio(upload_audio_path)
+        upload_processed_pitch_data = get_processed_audio(upload_audio_path)
+        dataset_processed_pitch_data = get_processed_audio(dataset_audio_path)
 
+        vector_upload = extract_features(upload_processed_pitch_data)
+        vector_dataset = extract_features(dataset_processed_pitch_data)
 
+        cosine_similarity = get_cosine_similarity(vector_upload, vector_dataset)
+        print(f"Cosine Similarity: {cosine_similarity}")
     else:
         print(f"Gada Filenya")
 

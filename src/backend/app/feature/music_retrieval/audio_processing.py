@@ -114,6 +114,18 @@ def extract_features(pitch_data):
 
     return vector_combined_features
 
+def get_cosine_similarity(vector_A, vector_B):
+    dot_product = np.dot(vector_A, vector_B)
+    norm_vector_A = np.linalg.norm(vector_A)
+    norm_vector_B = np.linalg.norm(vector_B)
+    norm_product = norm_vector_A * norm_vector_B
+
+    # check handle division by zero
+    if norm_product == 0:
+        return 0
+
+    cosine_similarity = dot_product / norm_product
+    return cosine_similarity
 
 def main():
     # upload_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"

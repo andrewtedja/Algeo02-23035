@@ -7,18 +7,17 @@ import matplotlib.pyplot as plt
 # PREPROCESS WAV
 def preprocess_wav(file_path):
     audio_data, sample_rate = librosa.load(file_path)
-    pitches, magnitudes = librosa.piptrack(y=audio_data, sr=sample_rate)
 
-    # pitches & magnitude berupa 2D array
+    # Get pitches from wav file
+    pitches = librosa.yin(audio_data, fmin=librosa.note_to_hz('C1'), fmax=librosa.note_to_hz('C8'), sr=sample_rate)
+
+    # Convert pitch (Hz) to MIDI note numbers
     pitch_data = []
-
-    for frame in range(pitches.shape[1]):
-        pitch = pitches[:, frame]
-        if pitch.any():
-            pitch_data.append(np.argmax(pitch))
+    for pitch in pitches:
+        if pitch > 0: 
+            pitch_data.append(int(librosa.hz_to_midi(pitch)))
         else:
-            # pitch kosong
-            pitch_data.append(0) 
+            pitch_data.append(0)  
     return pitch_data
     
 # PREPROCESS MIDI
@@ -41,7 +40,14 @@ def apply_sliding_window(data, window, step):
     return segments;
 
 # MAIN AUDIO PROCESSING FUNCTION
-def get_processed_audio(pitch_data):
+def get_processed_audio(file_path):
+    if file_path.endswith('.wav'):
+        pitch_data = preprocess_wav(file_path)
+    elif file_path.lower().endswith(('.mid', '.midi')):
+        pitch_data = preprocess_midi(file_path)
+    else:
+        raise ValueError("Unsupported file format")
+
     # Windowing
     segments = apply_sliding_window(pitch_data, 40, 8)
     pitches = [p for segment in segments for p in segment if p > 0]
@@ -52,53 +58,79 @@ def get_processed_audio(pitch_data):
     # Normalisasi Tempo
     mu = np.mean(pitches)
     sigma = np.std(pitches)
+    
+    if (sigma == 0):
+        sigma = 1
+
     processed_pitch_data = []
     for p in pitch_data:
         if p > 0:
-            processed_pitch_data.append((p - mu) / sigma)
+            normalized_value = (p - mu) / sigma
+            processed_pitch_data.append(normalized_value)
         else:
             processed_pitch_data.append(0)
     return processed_pitch_data
 
-# CREATE HISTOGRAM
-def create_histogram(data, num_bins):
-    histogram = np.zeros(num_bins, dtype=int)
+# CREATE AND NORMALIZE HISTOGRAM
+def create_and_normalize_histogram(data, num_bins, val_range = None):
+    # Create
+    if val_range is None:
+        val_range = (0, num_bins)
+    histogram, _ = np.histogram(data, bins=num_bins, range=val_range)
+    
+    # Normalize
+    total = np.sum(histogram)
+    if total > 0:
+        return histogram / total
+    else:
+        print("Error Warning: Histogram sum 0 atau negatif")
+        return histogram
 
-    for value in data:
-        if (0 <= value < num_bins):
-            histogram[value] += 1
-    return histogram
+# EXTRACT FEATURES
+def extract_features(pitch_data):
+    # ATB [0, 127]
+    bins_atb = 128
+    atb_normalized = create_and_normalize_histogram(pitch_data, bins_atb)
 
-# EXTRACT FEATURE
 
+    # RTB [-127, 127] (selisih antara nada-nada berurutan)
+    bins_rtb = 255
+    for i in range(1, len(pitch_data)):
+        rtb_data = pitch_data[i] - pitch_data[i - 1]
+        rtb_normalized = create_and_normalize_histogram(rtb_data, bins_rtb, (-127, 127))
+    
+    # FTB [-127, 127] (selisih antara nada-nada dengan nada pertama)
+    bins_ftb = 255
+    if len(pitch_data > 0):
+        for i in range(1, len(pitch_data)):
+            first_tone = pitch_data[0]
+            ftb_data = pitch_data[i] - first_tone
+            ftb_normalized = create_and_normalize_histogram(ftb_data, bins_ftb, (-127, 127))
+    else:
+        ftb_normalized = np.zeros(255, dtype=float)
+
+    # Gabung histogram menjadi 1 vektor
+    vector_combined_features = np.concatenate((atb_normalized, rtb_normalized, ftb_normalized))
+
+    return vector_combined_features
+
+
+def main():
+    # upload_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
+    upload_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklewav.wav"
+    dataset_audio_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
+
+    if os.path.exists(upload_audio_path):
+        print("File exists:", os.path.exists(upload_audio_path))
+        
+        # Preprocess wav/midi -> Get processed audio -> Extract features -> Get cosine similarity
+        processed_pitch_data = get_processed_audio(upload_audio_path)
+
+
+    else:
+        print(f"Gada Filenya")
 
 # TESTING
-audio_file = "src/backend/app/feature/music_retrieval/music_files/twinklewav.wav"
+if __name__ == "__main__":
+    main()
 
-if os.path.exists(audio_file):
-    print("File exists:", os.path.exists(audio_file))
-    pitch_data = preprocess_wav(audio_file)
-    processed_pitch_data = get_processed_audio(pitch_data)
-
-    print("Original Pitch Data:", pitch_data)
-    print("Processed Pitch Data:", processed_pitch_data)
-
-    # # Plot test
-    # plt.plot(pitch_data, label="Original Pitch")
-    # plt.plot(processed_pitch_data, label="Normalized Pitch")
-    # plt.xlabel('Frame Index')
-    # plt.ylabel('Pitch Value')
-    # plt.title('Pitch Data Comparison')
-    # plt.legend()
-    # plt.show()
-
-else:
-    print(f"Gada Filenya")
-
-# TEST HISTOGRAM
-# pitch_data = [60, 62, 60, 65, 67, 60, 62, 62, 70]
-# num_bins = 128
-
-# histogram = create_histogram(pitch_data, num_bins)
-
-# print(f"Histogram Data (non-zero bins): {histogram}")

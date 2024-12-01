@@ -2,6 +2,7 @@
 from PIL import Image as PIL
 import numpy as np
 import os
+from time import time
 from typing import *
 
 # TYPE DEFINING
@@ -21,7 +22,8 @@ class ImageData:
         self.k = None   # Principal Component Count
         self.euclid_distance = None
     def __str__(self):
-        return '\n'.join(f"{key}: {value}" for key, value in self.__dict__.items())
+        # return '\n'.join(f"{key}: {value}" for key, value in self.__dict__.items())
+        return f"File: {self.filename}\nEuclid: {self.euclid_distance}\n"
 
 
 ################# Image Processing and Loading #################
@@ -60,7 +62,7 @@ def crop_image(grayscale : Matrix) -> Matrix:
     return cropped
 
 def normalize_image(cropped : Matrix) -> Matrix:
-    dim = (64,64)
+    dim = (2,2)
     img = PIL.fromarray(cropped)
     resized_img = img.resize(dim, PIL.Resampling.BILINEAR) # Resizing
     return np.array(resized_img) # Return numpy array
@@ -132,11 +134,13 @@ def standardize_images(dataset : list[ImageData], pixel_means) -> None:
 ################# PCA Computation (SVD) #################
 # Digunakan pada dataset terstandarisasi
 def get_covariance_matrix(dataset : list[ImageData]) -> Matrix:
+
     img_count = len(dataset)
     # Mengubah banyak flattened vectors menjadi matrix
     X_matrix = np.array([image.standardized_pixels for image in dataset])
 
     covariance_matrix = (X_matrix.T @ X_matrix) / img_count
+
     return covariance_matrix
 
 # Helper to get eigenvalues
@@ -176,7 +180,7 @@ def get_eigen(A : Matrix) -> Tuple[Vector, Matrix]:
         if np.sqrt(np.sum(off_diag**2)) < tol:
             break
         
-        eigenvalues = np.diagonal(A)
+        eigenvalues = np.maximum(np.diagonal(A), 0) # Round negatives to zero
         return eigenvalues, Q_total
     
 # Mencari angka optimal untuk k
@@ -194,7 +198,6 @@ def choose_k(eigenvalues : Vector) -> int:
 def singular_value_decomposition(C : Matrix) -> Tuple[Matrix, int]:
     eigenvalues, eigenvectors = np.linalg.eig(C)
     # eigenvalues, eigenvectors = get_eigen(C)
-
     # Urut eigenvalue berdasarkan nilai singular
     sorted_indices = np.argsort(eigenvalues)[::-1]
     U = eigenvectors[:,sorted_indices]
@@ -207,23 +210,26 @@ def get_top_k_components(U : Matrix, k : int) -> Matrix:
 
 # Digunakan pada dataset yang sudah distandarisasi
 # Set atribut pca pada List ImageData
-def principal_component_analysis(dataset : list[ImageData]) -> None:
+def principal_component_analysis_dataset(dataset : list[ImageData]) -> Matrix:
     X = np.array([image.standardized_pixels for image in dataset])
 
     C = get_covariance_matrix(dataset)
-    # U, k = singular_value_decomposition(C)
     U, k = singular_value_decomposition(C)
 
     if dataset[0].k is not None:    # Overwrite k (ini hanya untuk query)
         k = dataset[0].k
-
     Uk = get_top_k_components(U,k)
     Z_matrix = X @ Uk
 
     for image, projection in zip(dataset, Z_matrix):
         image.pca = np.real(projection)
         image.k = k
+    return Uk
 
+def principal_component_analysis_query(query : ImageData, Uk : Matrix) -> None:
+    pixels = query.standardized_pixels
+    projection = pixels @ Uk
+    query.pca = np.real(projection)
 
 
 ################# Similarity Computation #################
@@ -239,9 +245,8 @@ def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> 
 
 
 ################# Retrieval and Output #################
-import time
 def master():
-    start = time.time()
+    start = time()
 
     dataset = load_dataset()
     query = [load_query("query/query.png")]
@@ -251,16 +256,19 @@ def master():
     standardize_images(dataset, pixel_means)
     standardize_images(query, pixel_means)
 
-    principal_component_analysis(dataset)
+    Uk = principal_component_analysis_dataset(dataset)
     query[0].k = dataset[0].k
-    principal_component_analysis(query)
+    principal_component_analysis_query(query[0], Uk)
     calculate_eucledian_distance(dataset, query[0])
 
-    displayObjectList(dataset)
-    closest_result = min(dataset, key=lambda image: image.euclid_distance)
-    print(closest_result.filename)
+    # TESTING
+    closest_results = sorted(
+    [image for image in dataset if image.euclid_distance < 10],  # Filter
+    key=lambda image: image.euclid_distance  # Sort
+)
+    displayObjectList(closest_results)
 
-    end = time.time()
+    end = time()
 
     print(f"Runtime: {end - start}")
 
@@ -273,5 +281,4 @@ def displayObjectList(list : list[object]) -> None :
 
 
 master()
-
 

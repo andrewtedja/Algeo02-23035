@@ -1,6 +1,5 @@
 import numpy as np
 import os
-from mido import MidiFile
 
 from audio_load import preprocess_midi, preprocess_wav
 from feature_extraction import extract_features
@@ -21,13 +20,11 @@ def save_dataset_similarity(query_path, dataset_folder):
             dataset_path = os.path.join(dataset_folder, dataset_file)
 
             if os.path.exists(dataset_path):
-                print(f"Dataset file exists ({dataset_file}):", os.path.exists(dataset_path)) # Kalo dah jadi ilangin
-
+                print(f"Dataset file exists ({dataset_file}):", os.path.exists(dataset_path)) # Kalo dah jadi semua ilangin
                 query_pitch = get_processed_audio(query_path)
                 dataset_pitch = get_processed_audio(dataset_path)
 
                 cosine_similarity = calculate_similarity(query_pitch, dataset_pitch)
-
                 similarity_list.append((dataset_file, cosine_similarity))
             else:
                 print("Gada Filenya")
@@ -45,7 +42,7 @@ def get_similar_file(similarity_list):
 # Main
 def main():
     # query_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
-    query_path = "test/music_query/Speaker_0000_00000.wav"
+    query_path = "test/music_query/Speaker_0000_00001.wav"
     dataset_folder = "test/music_dataset"
 
     # Testing

@@ -1,4 +1,3 @@
-# COBA DI SATU FILE DULU 
 from PIL import Image as PIL
 import numpy as np
 import os
@@ -280,5 +279,5 @@ def displayObjectList(list : list[object]) -> None :
         print()
 
 
-master()
+# master()
 

@@ -1,4 +1,4 @@
-from album_finder import *
+from backend.app.feature.album_finder.image_processing import *
 
 ##################### DEBUGGING/TESTING ######################
 # Mengubah image menjadi grayscale  

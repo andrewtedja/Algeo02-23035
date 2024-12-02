@@ -64,26 +64,25 @@ def create_and_normalize_histogram(data, num_bins, val_range = None):
 
 # Extract Features
 def extract_features(pitch_data):
-    
-    # ATB [0, 127]
-    bins_atb = 128
-    atb_normalized = create_and_normalize_histogram(pitch_data, bins_atb)
+    for windowed_data in pitch_data:
+        # ATB [0, 127]
+        bins_atb = 128
+        atb_normalized = create_and_normalize_histogram(windowed_data, bins_atb)
 
-    # RTB [-127, 127] (selisih antara nada-nada berurutan)
-    bins_rtb = 255
-    rtb_data = [pitch_data[i] - pitch_data[i-1] for i in range(1, len(pitch_data))]
-    rtb_normalized = create_and_normalize_histogram(rtb_data, bins_rtb, (-127, 127))
-    
-    # FTB [-127, 127] (selisih antara nada-nada dengan nada pertama)
-    bins_ftb = 255
-    if len(pitch_data) > 0:
-        ftb_data = [pitch_data[i] - pitch_data[0] for i in range(1, len(pitch_data))]
-        ftb_normalized = create_and_normalize_histogram(ftb_data, bins_ftb, (-127, 127))
-    else:
-        ftb_normalized = np.zeros(255, dtype=float)
-
-    # Gabung histogram menjadi 1 vektor
-    vector_combined_features = np.concatenate((atb_normalized, rtb_normalized, ftb_normalized))
+        # RTB [-127, 127] (selisih antara nada-nada berurutan)
+        bins_rtb = 255
+        rtb_data = [windowed_data[i] - windowed_data[i-1] for i in range(1, len(windowed_data))]
+        rtb_normalized = create_and_normalize_histogram(rtb_data, bins_rtb, (-127, 127))
+        
+        # FTB [-127, 127] (selisih antara nada-nada dengan nada pertama)
+        bins_ftb = 255
+        if len(windowed_data) > 0:
+            ftb_data = [windowed_data[i] - windowed_data[0] for i in range(1, len(windowed_data))]
+            ftb_normalized = create_and_normalize_histogram(ftb_data, bins_ftb, (-127, 127))
+        else:
+            ftb_normalized = np.zeros(255, dtype=float)
+        # Gabung histogram menjadi 1 vektor
+        vector_combined_features = np.concatenate((atb_normalized, rtb_normalized, ftb_normalized))
 
     return vector_combined_features
 

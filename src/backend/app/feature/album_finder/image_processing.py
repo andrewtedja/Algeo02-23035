@@ -61,7 +61,7 @@ def crop_image(grayscale : Matrix) -> Matrix:
     return cropped
 
 def normalize_image(cropped : Matrix) -> Matrix:
-    dim = (2,2)
+    dim = (16,16)
     img = PIL.fromarray(cropped)
     resized_img = img.resize(dim, PIL.Resampling.BILINEAR) # Resizing
     return np.array(resized_img) # Return numpy array
@@ -82,9 +82,8 @@ def preprocess_image(file_path : String) -> Vector:
     return vector
 
 # Memproses data-data gambar dataset
-def load_dataset() -> list[ImageData]:
+def load_dataset(directory :  String) -> list[ImageData]:
     dataset_list = []
-    directory = "images"
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
         image = ImageData(filename, preprocess_image(file_path))
@@ -195,8 +194,8 @@ def choose_k(eigenvalues : Vector) -> int:
 # I.S. M adalah matriks n x n (square)
 # Mengembalikan Matriks U
 def singular_value_decomposition(C : Matrix) -> Tuple[Matrix, int]:
-    eigenvalues, eigenvectors = np.linalg.eig(C)
-    # eigenvalues, eigenvectors = get_eigen(C)
+    # eigenvalues, eigenvectors = np.linalg.eig(C)
+    eigenvalues, eigenvectors = get_eigen(C)
     # Urut eigenvalue berdasarkan nilai singular
     sorted_indices = np.argsort(eigenvalues)[::-1]
     U = eigenvectors[:,sorted_indices]
@@ -234,7 +233,6 @@ def principal_component_analysis_query(query : ImageData, Uk : Matrix) -> None:
 ################# Similarity Computation #################
 def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> None:
     q = query.pca
-    k = query.k
     for images in dataset:
         z = images.pca
         distance = np.sqrt(np.sum((q - z) ** 2)) 
@@ -244,32 +242,31 @@ def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> 
 
 
 ################# Retrieval and Output #################
-def master():
-    start = time()
+# def master():
+#     start = time()
 
-    dataset = load_dataset()
-    query = [load_query("query/query.png")]
+#     dataset = load_dataset()
+#     query = [load_query("query/query.png")]
 
-    pixel_means = get_pixel_means(dataset)
+#     pixel_means = get_pixel_means(dataset)
 
-    standardize_images(dataset, pixel_means)
-    standardize_images(query, pixel_means)
+#     standardize_images(dataset, pixel_means)
+#     standardize_images(query, pixel_means)
 
-    Uk = principal_component_analysis_dataset(dataset)
-    query[0].k = dataset[0].k
-    principal_component_analysis_query(query[0], Uk)
-    calculate_eucledian_distance(dataset, query[0])
+#     Uk = principal_component_analysis_dataset(dataset)
+#     query[0].k = dataset[0].k
+#     principal_component_analysis_query(query[0], Uk)
+#     calculate_eucledian_distance(dataset, query[0])
 
-    # TESTING
-    closest_results = sorted(
-    [image for image in dataset if image.euclid_distance < 10],  # Filter
-    key=lambda image: image.euclid_distance  # Sort
-)
-    displayObjectList(closest_results)
+#     # TESTING
+#     closest_results = sorted(
+#     [image for image in dataset if image.euclid_distance < 1000000],  # Filter
+#     key=lambda image: image.euclid_distance  # Sort
+# )
+#     displayObjectList(closest_results)
+#     end = time()
 
-    end = time()
-
-    print(f"Runtime: {end - start}")
+#     print(f"Runtime: {end - start}")
 
 
 ################# UTILITY #################
@@ -277,7 +274,4 @@ def displayObjectList(list : list[object]) -> None :
     for object in list:
         print(object)
         print()
-
-
-# master()
 

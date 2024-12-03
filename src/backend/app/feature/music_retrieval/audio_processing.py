@@ -20,7 +20,11 @@ def get_processed_audio(file_path):
 
     # Windowing
     segments = apply_sliding_window(pitch_data, 40, 8)
-    pitches = [p for segment in segments for p in segment if p > 0]
+    pitches = []
+    for segment in segments:
+        for p in segment:
+            if p > 0:
+                pitches.append(p)
     if len(pitches) == 0:
         print("Pitches list is empty.")
         return pitch_data

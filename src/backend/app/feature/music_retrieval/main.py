@@ -42,8 +42,8 @@ def get_similar_file(similarity_list):
 # Main
 def main():
     # query_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
-    query_path = "test/music_query/Speaker_0000_00001.wav"
-    dataset_folder = "test/music_dataset"
+    query_path = "test/music_query/apt-input.wav"
+    dataset_folder = "test/music_dataset/bruno"
 
     # Testing
     dataset_similar = save_dataset_similarity(query_path, dataset_folder)

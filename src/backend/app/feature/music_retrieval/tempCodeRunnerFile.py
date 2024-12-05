@@ -1,1 +1,2 @@
-audio_file = "src/backend/app/feature/music_retrieval/music_files/twinklewav.wav"
+    audio_list = get_processed_audio(query_path)
+    print(audio_list)

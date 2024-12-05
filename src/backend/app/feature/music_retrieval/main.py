@@ -13,14 +13,15 @@ def save_dataset_similarity(query_path, dataset_folder):
     if (os.path.exists(query_path)) and (os.path.exists(dataset_folder)):
         # Check if file exists
         print(f"Query file exists {query_path}:", os.path.exists(query_path))
-        print(f"Folder exists {dataset_folder}):", os.path.exists(dataset_folder))
+        print(f"Dataset Folder exists {dataset_folder}):", os.path.exists(dataset_folder))
+        print()
         
         # Testing
         for dataset_file in os.listdir(dataset_folder):
             dataset_path = os.path.join(dataset_folder, dataset_file)
 
             if os.path.exists(dataset_path):
-                print(f"Dataset file exists ({dataset_file}):", os.path.exists(dataset_path)) # Kalo dah jadi semua ilangin
+                print(f"----Dataset file exists ({dataset_file}):", os.path.exists(dataset_path)) # Kalo dah jadi semua ilangin
                 query_pitch = get_processed_audio(query_path)
                 dataset_pitch = get_processed_audio(dataset_path)
 
@@ -42,8 +43,8 @@ def get_similar_file(similarity_list):
 # Main
 def main():
     # query_path = "src/backend/app/feature/music_retrieval/music_files/twinklemidi.mid"
-    query_path = "test/music_query/apt-input.wav"
-    dataset_folder = "test/music_dataset/bruno"
+    query_path = "test/music_query/shake_it_off_reff.wav"
+    dataset_folder = "test/music_dataset/taylor"
 
     # Testing
     dataset_similar = save_dataset_similarity(query_path, dataset_folder)

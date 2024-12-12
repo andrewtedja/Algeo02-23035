@@ -1,5 +1,5 @@
 import React from "react";
-import TestFetch from "../components/TestFetch";
+import TestFetch from "../../components/TestFetch";
 
 export default function HomePage() {
 	return (

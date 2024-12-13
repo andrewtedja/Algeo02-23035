@@ -1,6 +1,7 @@
 from PIL import Image as PIL
 import numpy as np
 import os
+import io
 from time import time   # noqa
 from typing import *
 
@@ -13,18 +14,26 @@ VectorList = List[Vector]
 
 # CLASS
 class ImageData:
-    def __init__(self, filename: String, pixels: Vector) -> None:
+    def __init__(self, filename: String, pixels: Vector, mod_pixels: Vector) -> None:
         self.filename = filename
         self.pixels = pixels
+        self.modified_pixels = mod_pixels
         self.size = int(np.sqrt(len(self.pixels)))if self.pixels is not None else None
         self.standardized_pixels = None
         self.pca = None
         self.k = None   # Principal Component Count
         self.euclid_distance = None
 
+    def compress_pixels(self):
+        buffer = io.BytesIO()
+        img = PIL.fromarray(self.pixels)  # Convert NumPy array to image
+        img = img.convert('RGB')
+        img.save(buffer, format="JPEG", quality=75, optimize=True)  # Compress image
+        return buffer.getvalue()
+
     def __str__(self):
         # return '\n'.join(f"{key}: {value}" for key, value in self.__dict__.items())
-        return f"File: {self.filename}\nEuclid: {self.euclid_distance}\n"
+        return f"File: {self.filename}\nPixels: {self.pixels}\nPCA: {self.pca}\n"
 
 
 ################# Image Processing and Loading #################
@@ -38,7 +47,7 @@ def extract_grayscale(file_path: String) -> Matrix:
     B = rgb[:, :, 2]
 
     grayscale = 0.2989 * R + 0.5870 * G + 0.1140 * B
-    grayscale = grayscale.astype(np.uint8)  # Membuat hasil perhitungan Integer
+    grayscale = grayscale.astype(np.uint16)  # Membuat hasil perhitungan Integer
 
     return grayscale
 
@@ -93,7 +102,8 @@ def load_dataset(directory: String) -> list[ImageData]:
     dataset_list = []
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
-        image = ImageData(filename, preprocess_image(file_path))
+        img = PIL.open(file_path)
+        image = ImageData(filename, np.array(img), preprocess_image(file_path))
         dataset_list.append(image)
     return dataset_list
 
@@ -101,21 +111,21 @@ def load_dataset(directory: String) -> list[ImageData]:
 # Memproses data gambar query
 def load_query(file_path) -> ImageData:
     filename = os.path.basename(file_path)
-    image = ImageData(filename, preprocess_image(file_path))
+    img = PIL.open(file_path)
+    image = ImageData(filename, np.array(img), preprocess_image(file_path))
     return image
 
 
 ################# Data Centering (Standardization) #################
 # Menghitung rata2 pixel gambar dataset
 def get_pixel_means(dataset: list[ImageData]) -> Vector:
-    pixel_matrix = np.array([image.pixels for image in dataset])
+    pixel_matrix = np.array([image.modified_pixels for image in dataset])
     img_total = len(dataset)
     pixel_means = []
 
     for j in range(pixel_matrix.shape[1]):
         pixel_sum = 0
-        for i in range(img_total):
-            pixel_sum += pixel_matrix[i][j]
+        pixel_sum = np.sum(pixel_matrix, dtype=np.int32)
         pixel_means.append(pixel_sum / img_total)
 
     return np.array(pixel_means)
@@ -124,12 +134,12 @@ def get_pixel_means(dataset: list[ImageData]) -> Vector:
 def standardize_images(dataset: list[ImageData], pixel_means) -> None:
     # Ubah vector menjadi matrix, dimana setiap baris adalah image berbeda
     # dan setiap kolom adalah pixel2 nya matrix N*jumlah_pixel
-    pixel_matrix = np.array([image.pixels for image in dataset])
+    pixel_matrix = np.array([image.modified_pixels for image in dataset])
     standardized_pixels_list = pixel_matrix - pixel_means  # Standarisasi Pixel
 
     # Perbarui pixel pada dataset
     for image, standardized_pixels in zip(dataset, standardized_pixels_list):
-        image.standardized_pixels = standardized_pixels
+        image.modified_pixels = standardized_pixels
 
 
 ################# PCA Computation (SVD) #################
@@ -138,7 +148,7 @@ def get_covariance_matrix(dataset: list[ImageData]) -> Matrix:
 
     img_count = len(dataset)
     # Mengubah banyak flattened vectors menjadi matrix
-    X_matrix = np.array([image.standardized_pixels for image in dataset])
+    X_matrix = np.array([image.modified_pixels for image in dataset])
 
     covariance_matrix = (X_matrix.T @ X_matrix) / img_count
 
@@ -218,7 +228,7 @@ def get_top_k_components(U: Matrix, k: int) -> Matrix:
 # Digunakan pada dataset yang sudah distandarisasi
 # Set atribut pca pada List ImageData
 def principal_component_analysis_dataset(dataset: list[ImageData]) -> Matrix:
-    X = np.array([image.standardized_pixels for image in dataset])
+    X = np.array([image.modified_pixels for image in dataset])
 
     C = get_covariance_matrix(dataset)
     U, k = singular_value_decomposition(C)
@@ -235,7 +245,7 @@ def principal_component_analysis_dataset(dataset: list[ImageData]) -> Matrix:
 
 
 def principal_component_analysis_query(query: ImageData, Uk: Matrix) -> None:
-    pixels = query.standardized_pixels
+    pixels = query.modified_pixels
     projection = pixels @ Uk
     query.pca = np.real(projection)
 

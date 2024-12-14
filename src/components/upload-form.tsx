@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Upload } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -39,13 +40,29 @@ export function UploadForm({ title, buttonText, onUpload }: UploadFormProps) {
 		<div className="space-y-6">
 			<h1 className="text-2xl font-bold">{title}</h1>
 
-			<div className="grid place-items-center gap-4 p-8 bg-muted/40 rounded-lg">
-				<Input
-					type="file"
-					className="max-w-sm"
-					onChange={handleFileChange}
-					accept="audio/*,image/*"
-				/>
+			<div className="grid place-items-center gap-6 p-8">
+				<div className="w-full max-w-xl aspect-[4/3] rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors">
+					<label
+						htmlFor="file-upload"
+						className="relative flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2"
+					>
+						<div className="rounded-full bg-muted p-4">
+							<Upload className="h-6 w-6 text-muted-foreground" />
+						</div>
+						<p className="text-lg font-medium">Drag files</p>
+						<p className="text-sm text-muted-foreground">
+							Click to upload files (files should be under 10 MB)
+						</p>
+						<Input
+							id="file-upload"
+							type="file"
+							className="sr-only"
+							onChange={handleFileChange}
+							accept="audio/*,image/*"
+						/>
+					</label>
+				</div>
+
 				<div className="flex gap-2">
 					<Button
 						size="lg"

@@ -1,6 +1,10 @@
+"use client";
+
 import { Home, Music, ImageIcon, Upload } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 import {
 	Sidebar,
 	SidebarContent,
@@ -12,6 +16,8 @@ import {
 } from "@/components/ui/sidebar";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const pathname = usePathname();
+
 	const menuItems = [
 		{ icon: Home, label: "Home", href: "/" },
 		{ icon: Music, label: "Search by Audio", href: "/search/audio" },
@@ -21,44 +27,54 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 	return (
 		<SidebarProvider>
-			<div className="flex min-h-screen ">
+			<div className="flex min-h-screen">
 				<Sidebar>
-					<SidebarHeader className="p-4 bg-[#363740] text-[#A4A6B3]">
+					<SidebarHeader className="p-8 pb-10 bg-[#363740] text-[#A4A6B3]">
 						<Link href="/" className="flex items-center gap-2">
 							<div className="rounded-lg">
 								<Image
 									src="/images/logo.png"
 									alt="SongSmart Logo"
-									width={30}
-									height={30}
+									width={35}
+									height={35}
 								/>
 							</div>
-							<span className="font-semibold">SongSmart</span>
+							<span className="font-semibold text-xl">
+								SongSmart
+							</span>
 						</Link>
 					</SidebarHeader>
 					<SidebarContent className="bg-[#363740] text-white">
-						<SidebarMenu>
-							{menuItems.map((item) => (
-								<SidebarMenuItem key={item.label}>
-									<SidebarMenuButton
-										asChild
-										className="h-10 hover:bg-[#50525e] hover:text-white"
-									>
-										<Link
-											href={item.href}
-											className="flex items-center gap-2 text-[#A4A6B3] rounded-none transition-colors"
+						<SidebarMenu className="p-0 m-0">
+							{menuItems.map((item) => {
+								const isActive = pathname === item.href;
+
+								return (
+									<SidebarMenuItem key={item.label}>
+										<SidebarMenuButton
+											asChild
+											className={`relative p-8 h-10 text-sm rounded-none tracking-widest transition-colors ${
+												isActive
+													? "bg-[#41434d] text-white before:absolute before:top-0 before:left-0 before:h-full before:w-[3px] before:bg-white"
+													: " hover:text-white text-[#A4A6B3]"
+											}`}
 										>
-											<item.icon className="h-4 w-4" />
-											<span>{item.label}</span>
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
+											<Link
+												href={item.href}
+												className="flex items-center gap-2"
+											>
+												<item.icon className="h-4 w-4" />
+												<span>{item.label}</span>
+											</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
 						</SidebarMenu>
 					</SidebarContent>
 				</Sidebar>
-				<main className="flex-1 p-6">{children}</main>
 			</div>
+			<main className="flex-1 p-6 w-full bg-white">{children}</main>
 		</SidebarProvider>
 	);
 }

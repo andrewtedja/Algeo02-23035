@@ -4,8 +4,8 @@ import Link from "next/link";
 
 export default function HomePage() {
 	return (
-		<Layout>
-			<div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12">
+		<Layout title="Home">
+			<div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4">
 				<h1 className="ml-5 text-5xl font-extrabold mb-6 flex items-center">
 					SongSmart
 					<Search className="ml-2" height={50} width={50} />

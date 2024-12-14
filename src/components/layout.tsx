@@ -15,7 +15,12 @@ import {
 	SidebarProvider,
 } from "@/components/ui/sidebar";
 
-export function Layout({ children }: { children: React.ReactNode }) {
+type LayoutProps = {
+	children: React.ReactNode;
+	title?: string;
+};
+
+export function Layout({ children, title = "Home" }: LayoutProps) {
 	const pathname = usePathname();
 
 	const menuItems = [
@@ -74,7 +79,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					</SidebarContent>
 				</Sidebar>
 			</div>
-			<main className="flex-1 p-6 w-full bg-white">{children}</main>
+			<main className="flex-1 p-6 w-full bg-white">
+				<div className="flex items-center font-semibold text-md pt-2">
+					{title}
+				</div>
+				{children}
+			</main>
 		</SidebarProvider>
 	);
 }

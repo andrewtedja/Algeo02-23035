@@ -27,7 +27,7 @@ export function Layout({ children, title = "Home" }: LayoutProps) {
 		{ icon: Home, label: "Home", href: "/" },
 		{ icon: Music, label: "Search by Audio", href: "/search/audio" },
 		{ icon: ImageIcon, label: "Search by Album", href: "/search/album" },
-		{ icon: Upload, label: "Upload Mapper", href: "/upload" },
+		{ icon: Upload, label: "Upload Dataset/Mapper", href: "/upload" },
 	];
 
 	return (

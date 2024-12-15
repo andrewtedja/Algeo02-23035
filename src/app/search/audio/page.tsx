@@ -80,7 +80,7 @@ export default function SearchAudioPage() {
 					</div>
 
 					<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
-						{[...Array(12)].map((_, i) => (
+						{[...Array(10)].map((_, i) => (
 							<Card
 								key={i}
 								className="overflow-hidden hover:shadow-md

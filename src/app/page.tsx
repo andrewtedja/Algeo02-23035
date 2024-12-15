@@ -16,7 +16,7 @@ export default function HomePage() {
 				</p>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl">
 					<Link href="/search/audio">
-						<div className="bg-[white] border-black rounded-2xl p-6 border-2 hover:border-sky-400 hover:bg-sky-50 active:bg-sky-100 shadow-md hover:shadow-2xl transition transform hover:-translate-y-2 flex flex-col items-center justify-center space-y-4 text-center">
+						<div className="bg-[white] border-black rounded-2xl p-6 border-2 hover:border-sky-400 hover:bg-sky-50 active:bg-sky-100 shadow-lg hover:shadow-2xl transition transform hover:scale-105 flex flex-col items-center justify-center space-y-4 text-center">
 							<Music
 								className="text-sky-500 transition-colors duration-300"
 								size={64}
@@ -32,7 +32,7 @@ export default function HomePage() {
 					</Link>
 
 					<Link href="/search/album">
-						<div className="bg-white border-black rounded-2xl p-6 border-2 hover:border-emerald-400 hover:bg-emerald-50 active:bg-emerald-100 shadow-md hover:shadow-2xl transition transform hover:-translate-y-2 flex flex-col items-center justify-center space-y-4 text-center">
+						<div className="bg-white border-black rounded-2xl p-6 border-2 hover:border-emerald-400 hover:bg-emerald-50 active:bg-emerald-100 shadow-lg hover:shadow-2xl transition transform hover:scale-105 flex flex-col items-center justify-center space-y-4 text-center">
 							<Images
 								className="text-emerald-500 transition-colors duration-300"
 								size={64}

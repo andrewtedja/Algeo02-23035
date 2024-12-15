@@ -3,20 +3,49 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { Upload, Music, Search } from "lucide-react";
+import { Upload, Music } from "lucide-react";
 
 export default function SearchAudioPage() {
 	const [selectedDataset, setSelectedDataset] = useState(null);
 	const [selectedMapper, setSelectedMapper] = useState(null);
 
+	const [datasetUploaded, setDatasetUploaded] = useState(false);
+	const [mapperUploaded, setMapperUploaded] = useState(false);
+
+	// Handle file selection
 	const handleDatasetChange = (event) => {
 		const file = event.target.files[0];
 		setSelectedDataset(file);
+		setDatasetUploaded(false); // Reset upload state when a new file is selected
 	};
 
 	const handleMapperChange = (event) => {
 		const file = event.target.files[0];
 		setSelectedMapper(file);
+		setMapperUploaded(false); // Reset upload state when a new file is selected
+	};
+
+	// Simulate upload actions
+	const uploadDataset = () => {
+		if (selectedDataset) {
+			// Simulate API call here
+			setTimeout(() => {
+				alert(
+					`Dataset "${selectedDataset.name}" uploaded successfully!`
+				);
+				setDatasetUploaded(true);
+			}, 1000);
+		}
+	};
+
+	const uploadMapper = () => {
+		if (selectedMapper) {
+			// Simulate API call here
+			setTimeout(() => {
+				alert(`Mapper "${selectedMapper.name}" uploaded successfully!`);
+				setMapperUploaded(true);
+			}, 1000);
+		}
 	};
 
 	return (
@@ -29,7 +58,7 @@ export default function SearchAudioPage() {
 					</h1>
 				</div>
 
-				{/* Dataset */}
+				{/* Dataset Upload */}
 				<div className="mb-8">
 					<h2 className="text-2xl font-bold mb-4">Upload Dataset</h2>
 					<div
@@ -61,9 +90,19 @@ export default function SearchAudioPage() {
 							</p>
 						</div>
 					</div>
+					<Button
+						size="lg"
+						className="mt-4 hover: hover:bg-slate-900 hover:text-white"
+						disabled={!selectedDataset || datasetUploaded}
+						onClick={uploadDataset}
+					>
+						{datasetUploaded
+							? "Dataset Uploaded"
+							: "Upload Dataset"}
+					</Button>
 				</div>
 
-				{/* Mapper */}
+				{/* Mapper Upload */}
 				<div className="mb-8">
 					<h2 className="text-2xl font-bold mb-4">Upload Mapper</h2>
 					<div
@@ -95,15 +134,22 @@ export default function SearchAudioPage() {
 							</p>
 						</div>
 					</div>
+					<Button
+						size="lg"
+						className="mt-4 hover:bg-slate-900 hover:text-white"
+						disabled={!selectedMapper || mapperUploaded}
+						onClick={uploadMapper}
+					>
+						{mapperUploaded ? "Mapper Uploaded" : "Upload Mapper"}
+					</Button>
 				</div>
 
-				{/* Button */}
 				<Button
 					size="lg"
 					className="mt-4"
-					disabled={!selectedDataset || !selectedMapper}
+					disabled={!datasetUploaded || !mapperUploaded}
 				>
-					<Search className="mr-2" /> Search Song
+					Search Song
 				</Button>
 			</div>
 		</Layout>

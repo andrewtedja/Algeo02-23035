@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
-import { Upload, Music, Braces } from "lucide-react";
+import { Upload, Braces } from "lucide-react";
 
 export default function SearchAudioPage() {
 	const [selectedDataset, setSelectedDataset] = useState(null);
@@ -12,21 +12,27 @@ export default function SearchAudioPage() {
 	const [datasetUploaded, setDatasetUploaded] = useState(false);
 	const [mapperUploaded, setMapperUploaded] = useState(false);
 	const [uploadError, setUploadError] = useState(null);
+	const [uploadMessage, setUploadMessage] = useState(null);
 
 	const handleDatasetChange = (event) => {
 		const file = event.target.files[0];
 		setSelectedDataset(file);
 		setDatasetUploaded(false);
+		setUploadMessage(null);
+		setUploadError(null);
 	};
 
 	const handleMapperChange = (event) => {
 		const file = event.target.files[0];
 		setSelectedMapper(file);
 		setMapperUploaded(false);
+		setUploadMessage(null);
+		setUploadError(null);
 	};
 
 	const uploadFile = async (file, endpoint) => {
 		setUploadError(null);
+		setUploadMessage(null);
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
@@ -38,9 +44,14 @@ export default function SearchAudioPage() {
 					body: formData,
 				}
 			);
+
 			if (!response.ok) {
-				throw new Error(`Failed to upload ${endpoint}`);
+				const errorData = await response.json();
+				throw new Error(
+					errorData.message || `Failed to upload ${endpoint}`
+				);
 			}
+
 			const data = await response.json();
 			return data;
 		} catch (err) {
@@ -52,10 +63,10 @@ export default function SearchAudioPage() {
 		if (!selectedDataset) return;
 		try {
 			const res = await uploadFile(selectedDataset, "dataset");
-			alert(res.message);
+			setUploadMessage(res.message);
 			setDatasetUploaded(true);
 		} catch (err) {
-			console.error(err);
+			throw err;
 		}
 	};
 
@@ -63,10 +74,10 @@ export default function SearchAudioPage() {
 		if (!selectedMapper) return;
 		try {
 			const res = await uploadFile(selectedMapper, "mapper");
-			alert(res.message);
+			setUploadMessage(res.message);
 			setMapperUploaded(true);
 		} catch (err) {
-			console.error(err);
+			throw err;
 		}
 	};
 
@@ -101,17 +112,18 @@ export default function SearchAudioPage() {
 							/>
 							<h3 className="text-xl font-semibold text-gray-800">
 								{selectedDataset
-									? `Selected: ${selectedDataset.name}`
+									? `Selected Dataset: ${selectedDataset.name}`
 									: "Drag and Drop || Click to Upload Dataset (ZIP)"}
 							</h3>
 							<p className="text-muted-foreground">
-								Upload a zip file containing your dataset.
+								Upload a zip file containing your dataset
 							</p>
 						</div>
 					</div>
 					<Button
 						className="mt-4 hover:bg-gray-900 transition-colors duration-300 hover:text-white"
 						onClick={uploadDataset}
+						disabled={!selectedDataset}
 					>
 						<Upload className="mr-2" />
 						{datasetUploaded
@@ -142,33 +154,32 @@ export default function SearchAudioPage() {
 							/>
 							<h3 className="text-xl font-semibold text-gray-800">
 								{selectedMapper
-									? `Selected: ${selectedMapper.name}`
+									? `Selected Mapper: ${selectedMapper.name}`
 									: "Drag and Drop || Click to Upload Mapper (JSON)"}
 							</h3>
-							<p>Upload a JSON file that maps your dataset.</p>
+							<p>Upload a JSON file for dataset mapper</p>
 						</div>
 					</div>
 					<Button
 						className="mt-4 hover:bg-gray-900 transition-colors duration-300 hover:text-white"
 						onClick={uploadMapper}
+						disabled={!selectedMapper}
 					>
 						<Upload className="mr-2" />
 						{mapperUploaded ? "Mapper Uploaded" : "Upload Mapper"}
 					</Button>
 				</div>
 
+				{uploadMessage && (
+					<div className="text-green-500 mb-4">
+						Success: {uploadMessage}
+					</div>
+				)}
 				{uploadError && (
 					<div className="text-red-500 mb-4">
 						Error: {uploadError}
 					</div>
 				)}
-
-				<Button
-					className="mt-4 hover:bg-dark hover:text-white"
-					disabled={!datasetUploaded || !mapperUploaded}
-				>
-					Search Song
-				</Button>
 			</div>
 		</Layout>
 	);

@@ -65,6 +65,9 @@ export default function SearchAudioPage() {
 						<Music className="text-sky-500" size={40} />
 						Search by Audio
 					</h1>
+					<Button className="hover:bg-black hover:text-white transition duration-500">
+						<Search className="mr-2" /> Search
+					</Button>
 				</div>
 
 				<div className="mb-12">

@@ -17,6 +17,35 @@ import {
 import { useState } from "react";
 
 export default function SearchAlbum() {
+	// MOCK DATA
+	const mockData = Array.from({ length: 50 }, (_, index) => ({
+		id: index + 1,
+		title: `Song Title ${index + 1}`,
+		artist: `Artist ${index + 1}`,
+	}));
+
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
+	const totalPages = Math.ceil(mockData.length / itemsPerPage);
+	const indexOfLastItem = currentPage * itemsPerPage;
+	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+	const currentItems = mockData.slice(indexOfFirstItem, indexOfLastItem);
+
+	const handlePageChange = (pageNumber) => {
+		if (pageNumber < 1 || pageNumber > totalPages) return;
+		setCurrentPage(pageNumber);
+	};
+
+	const handlePrevious = () => {
+		handlePageChange(currentPage - 1);
+	};
+
+	const handleNext = () => {
+		handlePageChange(currentPage + 1);
+	};
+
+	////////////////////////////////////////////////
+
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [uploadMessage, setUploadMessage] = useState(null);
 	const [uploadError, setUploadError] = useState(null);
@@ -134,7 +163,7 @@ export default function SearchAlbum() {
 								className="overflow-hidden hover:shadow-md
 								transition-all duration-100 transform cursor-pointer
 								hover:-translate-y-2 border-2 border-transparent 
-								border-violet-300"
+								border-slate-300"
 							>
 								<div className="aspect-square relative group">
 									<Image
@@ -154,7 +183,7 @@ export default function SearchAlbum() {
 									</p>
 									<Badge
 										variant="secondary"
-										className="bg-violet-100 text-violet-800"
+										className="bg-slate-100 text-slate-800"
 									>
 										Match: 94.6%
 									</Badge>
@@ -164,24 +193,29 @@ export default function SearchAlbum() {
 					</div>
 				</div>
 
-				<Pagination>
+				<Pagination className="cursor-pointer">
 					<PaginationContent>
 						<PaginationItem>
-							<PaginationPrevious href="#" />
+							<PaginationPrevious
+								onClick={handlePrevious}
+								disabled={currentPage === 1}
+							/>
 						</PaginationItem>
+						{Array.from({ length: totalPages }, (_, index) => (
+							<PaginationItem key={index + 1}>
+								<PaginationLink
+									onClick={() => handlePageChange(index + 1)}
+									isActive={currentPage === index + 1}
+								>
+									{index + 1}
+								</PaginationLink>
+							</PaginationItem>
+						))}
 						<PaginationItem>
-							<PaginationLink href="#" isActive>
-								1
-							</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationLink href="#">2</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationLink href="#">3</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationNext href="#" />
+							<PaginationNext
+								onClick={handleNext}
+								disabled={currentPage === totalPages}
+							/>
 						</PaginationItem>
 					</PaginationContent>
 				</Pagination>

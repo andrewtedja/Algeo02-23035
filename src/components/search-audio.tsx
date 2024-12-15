@@ -17,6 +17,35 @@ import {
 import { useState } from "react";
 
 export default function SearchAudio() {
+	// MOCK DATA
+	const mockData = Array.from({ length: 50 }, (_, index) => ({
+		id: index + 1,
+		title: `Song Title ${index + 1}`,
+		artist: `Artist ${index + 1}`,
+	}));
+
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 10;
+	const totalPages = Math.ceil(mockData.length / itemsPerPage);
+	const indexOfLastItem = currentPage * itemsPerPage;
+	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+	const currentItems = mockData.slice(indexOfFirstItem, indexOfLastItem);
+
+	const handlePageChange = (pageNumber) => {
+		if (pageNumber < 1 || pageNumber > totalPages) return;
+		setCurrentPage(pageNumber);
+	};
+
+	const handlePrevious = () => {
+		handlePageChange(currentPage - 1);
+	};
+
+	const handleNext = () => {
+		handlePageChange(currentPage + 1);
+	};
+
+	////////////////////////////////////////////////////////
+
 	const [selectedFile, setSelectedFile] = useState(null);
 	const [uploadMessage, setUploadMessage] = useState(null);
 	const [uploadError, setUploadError] = useState(null);
@@ -106,7 +135,7 @@ export default function SearchAudio() {
 						disabled={!selectedFile}
 						onClick={handleSearch}
 					>
-						<Upload className="mr-2" /> Upload Song
+						<Upload className="mr-2" /> Upload Audio
 					</Button>
 					{uploadMessage && (
 						<p className="text-green-600 mt-2">{uploadMessage}</p>
@@ -128,13 +157,13 @@ export default function SearchAudio() {
 					</div>
 
 					<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
-						{[...Array(10)].map((_, i) => (
+						{currentItems.map((item) => (
 							<Card
-								key={i}
+								key={item.id}
 								className="overflow-hidden hover:shadow-md
-								transition-all duration-100 transform cursor-pointer
-								hover:-translate-y-2 border-2 border-transparent 
-								border-violet-300"
+                transition-all duration-100 transform cursor-pointer
+                hover:-translate-y-2 border-2 border-transparent 
+                border-slate-300"
 							>
 								<div className="aspect-square relative group">
 									<Image
@@ -147,16 +176,16 @@ export default function SearchAudio() {
 								</div>
 								<div className="p-5">
 									<h3 className="font-bold text-xl text-gray-900 mb-1">
-										Song Title
+										{item.title}
 									</h3>
 									<p className="text-muted-foreground mb-2">
-										Artist Name
+										{item.artist}
 									</p>
 									<Badge
 										variant="secondary"
-										className="bg-violet-100 text-violet-800"
+										className="bg-slate-100 text-slate-800"
 									>
-										Match: 94.6%
+										Match: {item.match}%
 									</Badge>
 								</div>
 							</Card>
@@ -164,24 +193,29 @@ export default function SearchAudio() {
 					</div>
 				</div>
 
-				<Pagination>
+				<Pagination className="cursor-pointer">
 					<PaginationContent>
 						<PaginationItem>
-							<PaginationPrevious href="#" />
+							<PaginationPrevious
+								onClick={handlePrevious}
+								disabled={currentPage === 1}
+							/>
 						</PaginationItem>
+						{Array.from({ length: totalPages }, (_, index) => (
+							<PaginationItem key={index + 1}>
+								<PaginationLink
+									onClick={() => handlePageChange(index + 1)}
+									isActive={currentPage === index + 1}
+								>
+									{index + 1}
+								</PaginationLink>
+							</PaginationItem>
+						))}
 						<PaginationItem>
-							<PaginationLink href="#" isActive>
-								1
-							</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationLink href="#">2</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationLink href="#">3</PaginationLink>
-						</PaginationItem>
-						<PaginationItem>
-							<PaginationNext href="#" />
+							<PaginationNext
+								onClick={handleNext}
+								disabled={currentPage === totalPages}
+							/>
 						</PaginationItem>
 					</PaginationContent>
 				</Pagination>

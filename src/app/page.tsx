@@ -6,13 +6,12 @@ export default function HomePage() {
 	return (
 		<Layout title="Home">
 			<div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4">
-				<h1 className="ml-5 text-5xl font-extrabold mb-6 flex items-center">
+				<h1 className="ml-5 text-5xl font-extrabold mb-4 flex items-center">
 					SongSmart
 					<Search className="ml-2" height={50} width={50} />
 				</h1>
 				<p className="text-xl text-center max-w-2xl mb-12">
-					Discover music in new ways. Search songs by audio or album
-					artwork with our recognition technology.
+					By Kratingdaeng.
 				</p>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl">
 					<Link href="/search/audio">

@@ -3,6 +3,7 @@ import numpy as np
 import os
 from mido import MidiFile
 
+
 # Convert wav to pitch data
 def preprocess_wav(file_path):
     audio_data, sample_rate = librosa.load(file_path)
@@ -16,9 +17,10 @@ def preprocess_wav(file_path):
         if pitch > 0: 
             pitch_data.append(int(librosa.hz_to_midi(pitch)))
         else:
-            pitch_data.append(0)  
+            pitch_data.append(0)
     return pitch_data
-    
+
+
 # Convert midi to pitch data
 def preprocess_midi(file_path):
     midi = MidiFile(file_path)
@@ -29,6 +31,3 @@ def preprocess_midi(file_path):
             if msg.type == 'note_on' and msg.velocity > 0:
                 pitch_data.append(msg.note)
     return pitch_data
-
-
-

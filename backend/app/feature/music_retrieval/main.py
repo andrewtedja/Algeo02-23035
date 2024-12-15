@@ -6,15 +6,24 @@ from feature_extraction import extract_features
 from similarity import calculate_similarity
 from audio_processing import get_processed_audio
 
+AUD_DIR = "backend/app/data/dataset/audio"
+
+
+class AudioData:
+    def __init__(self, filename):
+        self.filename = filename
+        self.pitch_data = get_processed_audio(AUD_DIR + filename)
+        self.atb = 
+
 
 # Memproses data-data gambar dataset
 def save_dataset_similarity(query_path, dataset_folder):
-    similarity_list = [] # Bentuk tuple
+    similarity_list = []  # Bentuk tuple
     if (os.path.exists(query_path)) and (os.path.exists(dataset_folder)):
         # Check if file exists
         print(f"Query file exists {query_path}:", os.path.exists(query_path))
         print(f"Folder exists {dataset_folder}):", os.path.exists(dataset_folder))
-        
+
         # Testing
         for dataset_file in os.listdir(dataset_folder):
             dataset_path = os.path.join(dataset_folder, dataset_file)

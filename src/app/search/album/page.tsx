@@ -18,10 +18,43 @@ import { useState } from "react";
 
 export default function SearchAlbumPage() {
 	const [selectedFile, setSelectedFile] = useState(null);
+	const [uploadMessage, setUploadMessage] = useState(null);
+	const [uploadError, setUploadError] = useState(null);
 
 	const handleFileChange = (event) => {
 		const file = event.target.files[0];
 		setSelectedFile(file);
+		setUploadMessage(null);
+		setUploadError(null);
+	};
+
+	const uploadFile = async (file) => {
+		setUploadError(null);
+		setUploadMessage(null);
+		try {
+			const formData = new FormData();
+			formData.append("file", file);
+
+			const response = await fetch("http://localhost:8000/upload/album", {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to upload album cover");
+			}
+
+			const data = await response.json();
+			setUploadMessage(data.message);
+		} catch (err) {
+			throw err;
+		}
+	};
+
+	const handleSearch = () => {
+		if (selectedFile) {
+			uploadFile(selectedFile);
+		}
 	};
 
 	return (
@@ -64,11 +97,23 @@ export default function SearchAlbumPage() {
 							</p>
 						</div>
 					</div>
-					<Button size="lg" className="mt-4" disabled={!selectedFile}>
-						<Search className="mr-2" /> Search Album
+					<Button
+						size="lg"
+						className="mt-4 hover:bg-slate-900 hover:text-white"
+						disabled={!selectedFile}
+						onClick={handleSearch}
+					>
+						<Upload className="mr-2" /> Upload Image
 					</Button>
+					{uploadMessage && (
+						<p className="text-green-600 mt-2">{uploadMessage}</p>
+					)}
+					{uploadError && (
+						<p className="text-red-600 mt-2">{uploadError}</p>
+					)}
 				</div>
 
+				{/* MOCK RESULTS */}
 				<div className="mb-8">
 					<div className="flex justify-between items-center mb-4">
 						<h2 className="text-3xl font-bold text-gray-900">
@@ -86,7 +131,7 @@ export default function SearchAlbumPage() {
 								className="overflow-hidden hover:shadow-md
 								transition-all duration-100 transform cursor-pointer
 								hover:-translate-y-2 border-2 border-transparent 
-							border-violet-300"
+								border-violet-300"
 							>
 								<div className="aspect-square relative group">
 									<Image

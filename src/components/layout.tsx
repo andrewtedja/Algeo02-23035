@@ -58,7 +58,7 @@ export function Layout({ children, title = "Home" }: LayoutProps) {
 									<SidebarMenuItem key={item.label}>
 										<SidebarMenuButton
 											asChild
-											className={`relative p-8 h-10 text-sm rounded-none tracking-widest transition-colors ${
+											className={`relative p-8 h-10 text-xs rounded-none tracking-widest transition-colors ${
 												isActive
 													? "bg-[#41434d] text-white before:absolute before:top-0 before:left-0 before:h-full before:w-[3px] before:bg-white"
 													: " hover:text-white text-[#A4A6B3]"

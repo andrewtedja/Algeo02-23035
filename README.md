@@ -23,7 +23,7 @@
 
 ##  About
 
-  <h3 align="center"> SongSmart 🎵 </h3>
+<h3 align="center"> SongSmart 🎵 </h3>
 <p align="center"><em>Your Ultimate Solution for Music and Album Cover Searching</em></p>
 
 Ever had a song stuck in your head, that you just can’t figure out the name of? Or stumbled upon a cool album cover that’s too obscure to identify? We’ve all been there—frustrated by the search for a tune or an image that feels just out of reach. **SongSmart** is here to change that.
@@ -37,8 +37,7 @@ Welcome to **SongSmart**, your smart solution for **Image Retrieval** and **Musi
 ⚡ **Fast & Accurate**: Experience rapid, precise results powered by advanced vector techniques.
 
 </br>
-
-**Discover. Match. Enjoy.**  
+<h3><b>Discover. Match. Enjoy.s</b></h3>
 Find the music you can't name and the album covers you can't place.
 SongSmart makes finding images and music as intuitive as a hum or a click. 🚀
 

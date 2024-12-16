@@ -1,0 +1,30 @@
+[
+    {
+        "audio_name": "speaker_1.wav",
+        "pic_name": "peta_1.png"
+    },
+    {
+        "audio_name": "speaker_2.wav",
+        "pic_name": "coretdino_2.png"
+    },
+    {
+        "audio_name": "speaker_3.wav",
+        "pic_name": "dino_3.png"
+    },
+    {
+        "audio_name": "speaker_4.wav",
+        "pic_name": "flagdino_4.png"
+    },
+    {
+        "audio_name": "speaker_5.wav",
+        "pic_name": "lss_5.png"
+    },
+    {
+        "audio_name": "twinkle_6.mid",
+        "pic_name": "wbd_6.png"
+    },
+    {
+        "audio_name": "twinkle_7.wav",
+        "pic_name": "logo_7.jpg"
+    }
+]

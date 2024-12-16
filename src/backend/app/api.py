@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 import shutil
 import sys
 import os
@@ -153,3 +154,10 @@ async def search_audio(file: UploadFile = File(...)):
     results, runtime = query_audio(query_path, audio_to_pic)
 
     return {"results": results, "runtime": runtime}
+
+@app.get("/images/{image_name}")
+async def get_image(image_name: str):
+    image_path = os.path.join("src", "datasets", image_name)
+    if not os.path.exists(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)

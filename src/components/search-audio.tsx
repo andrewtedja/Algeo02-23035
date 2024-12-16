@@ -154,7 +154,7 @@ export default function SearchAudio() {
 								>
 									<div className="aspect-square relative group">
 										<Image
-											src="/placeholder.svg"
+											src={`http://localhost:8000/images/${item.image_name}`}
 											alt="Album cover"
 											layout="fill"
 											objectFit="cover"
@@ -162,7 +162,7 @@ export default function SearchAudio() {
 										/>
 									</div>
 									<div className="p-5">
-										<h3 className="font-bold text-xl text-gray-900 mb-1">
+										<h3 className="font-bold text-md text-gray-900 mb-1">
 											{item.audio_name || "Unknown Audio"}
 										</h3>
 										<p className="text-muted-foreground mb-2">

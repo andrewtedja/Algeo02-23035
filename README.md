@@ -3,7 +3,8 @@
 
 <H3 align="center">Image and Music Information Retrieval : Tugas Besar 2 IF2123 Aljabar Linier dan Geometri </p>
 
-  
+</br>
+</br>
 
 ##  Kelompok 49 - Kratingdaeng
 
@@ -11,16 +12,11 @@
 
 <div align="center">
 
-| NIM | Nama |
-
-|----------|---------------------------|
-
-| 13523035 | M. Rayhan Farrukh |
-
-| 13523097 | Shanice Feodora Tjahjono |
-
-| 13523148 | Andrew Tedja Pratama |
-
+<table border="1" cellspacing="0" cellpadding="8"> 
+  <tr> <th>NIM</th> <th>Nama</th> </tr> 
+  <tr> <td>13523035</td> <td>M. Rayhan Farrukh</td> </tr> 
+  <tr> <td>13523097</td> <td>Shanice Feodora Tjahjono</td> 
+  </tr> <tr> <td>13523148</td> <td>Andrew Tedja Pratama</td> </tr> </table>
 </div>
 
   

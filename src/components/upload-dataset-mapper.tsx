@@ -159,9 +159,9 @@ export default function UploadDatasetMapper() {
 							<h3 className="text-xl font-semibold text-gray-800">
 								{selectedMapper
 									? `Selected Mapper: ${selectedMapper.name}`
-									: "Drag and Drop || Click to Upload Mapper (JSON)"}
+									: "Drag and Drop || Click to Upload Mapper (JSON/TXT)"}
 							</h3>
-							<p>Upload a JSON file for dataset mapper</p>
+							<p>Upload a JSON or TXT file for dataset mapper</p>
 						</div>
 					</div>
 					<Button

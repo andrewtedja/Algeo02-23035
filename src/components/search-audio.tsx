@@ -77,13 +77,6 @@ export default function SearchAudio() {
 						<Music className="text-sky-500" size={40} />
 						Search Audio
 					</h1>
-					<Button
-						className="hover:bg-black hover:text-white transition duration-500"
-						disabled={!selectedFile}
-						onClick={handleSearch}
-					>
-						<Search className="mr-2" /> Search
-					</Button>
 				</div>
 
 				<div className="mb-12">
@@ -131,7 +124,6 @@ export default function SearchAudio() {
 					)}
 				</div>
 
-				{/* Search Results */}
 				{searchResults.length > 0 && (
 					<div className="mb-8">
 						<div className="flex justify-between items-center mb-4">

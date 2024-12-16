@@ -47,7 +47,7 @@ SongSmart makes finding images and music as intuitive as a hum or a click. 🚀
 1 . Clone the repo
 
 ```sh
-    git clone git@github.com:ValentinoTriadi/Algeo02-22134.git
+    git clone git@github.com:grwna/Algeo02-23035.git
 ```
 <p align="center">or</p>
 

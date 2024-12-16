@@ -53,8 +53,8 @@ export default function SearchAlbum() {
 			const data = await response.json();
 			setSearchResults(data.results);
 			setSearchRuntime(data.runtime);
-		} catch (err: any) {
-			setUploadError(err.message);
+		} catch (err) {
+			throw err;
 		}
 	};
 

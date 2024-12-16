@@ -1,11 +1,17 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
+import sys
 import os
 import zipfile
 import rarfile
 
-from backend.app.data.database import save_image_to_database, save_audio_to_database
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+
+from src.backend.app.data.database import save_image_to_database, save_audio_to_database
+from src.backend.app.data.mapper import load_mapper
+from src.backend.app.data.database import query_image
+from src.backend.app.data.database import query_audio
 
 app = FastAPI()
 
@@ -129,8 +135,6 @@ async def search_album(file: UploadFile = File(...)):
     with open(query_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    from backend.app.data.mapper import load_mapper
-    from backend.app.data.database import query_image
 
     DATADIR = "backend/app/data/"
     audio_to_pic, pic_to_audio = load_mapper(DATADIR)
@@ -148,9 +152,6 @@ async def search_audio(file: UploadFile = File(...)):
     query_path = os.path.join(query_dir, file.filename)
     with open(query_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-
-    from backend.app.data.mapper import load_mapper
-    from backend.app.data.database import query_audio
 
     DATADIR = "backend/app/data/"
     audio_to_pic, pic_to_audio = load_mapper(DATADIR)

@@ -1,9 +1,9 @@
 import os
 # import time
 
-from backend.app.feature.music_retrieval.feature_extraction import extract_features
-from backend.app.feature.music_retrieval.similarity import get_cosine_similarity
-from backend.app.feature.music_retrieval.audio_processing import get_processed_audio
+from src.backend.app.feature.music_retrieval.feature_extraction import extract_features
+from src.backend.app.feature.music_retrieval.similarity import get_cosine_similarity
+from src.backend.app.feature.music_retrieval.audio_processing import get_processed_audio
 
 DIR = "backend/app/data/dataset/"
 AUD_DIR = "backend/app/data/dataset/audio/"

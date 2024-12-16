@@ -100,10 +100,11 @@ def preprocess_image(file_path: String) -> Vector:
 def load_dataset(directory: String) -> list[ImageData]:
     dataset_list = []
     for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-        img = PIL.open(file_path)
-        image = ImageData(filename, np.array(img), preprocess_image(file_path))
-        dataset_list.append(image)
+        if (filename.endswith(("png", "jpg", "jpeg"))):
+            file_path = os.path.join(directory, filename)
+            img = PIL.open(file_path)
+            image = ImageData(filename, np.array(img), preprocess_image(file_path))
+            dataset_list.append(image)
     return dataset_list
 
 

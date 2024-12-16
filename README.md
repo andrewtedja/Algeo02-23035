@@ -26,6 +26,11 @@
 <h3 align="center"> SongSmart 🎵 </h3>
 <p align="center"><em>Your Ultimate Solution for Music and Album Cover Searching</em></p>
 
+<div align="center">
+  <img src="doc/images/homepage.png" alt="SongSmart Logo" width="500"/>
+</div>
+</br>
+</br>
 Ever had a song stuck in your head, that you just can’t figure out the name of? Or stumbled upon a cool album cover that’s too obscure to identify? We’ve all been there—frustrated by the search for a tune or an image that feels just out of reach. **SongSmart** is here to change that.
 
 Welcome to **SongSmart**, your smart solution for **Image Retrieval** and **Music Information Retrieval**. Using cutting-edge **Principal Component Analysis (PCA)** and vector-based matching, SongSmart delivers precise results with speed and accuracy.

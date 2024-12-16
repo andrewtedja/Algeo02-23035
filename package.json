@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "concurrently \"npm run dev-next\" \"npm run dev-fastapi\"",
 		"dev-next": "next dev",
-		"dev-fastapi": "python backend/main.py",
+		"dev-fastapi": "python src/backend/main.py",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"

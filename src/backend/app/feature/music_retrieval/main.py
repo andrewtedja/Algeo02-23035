@@ -5,8 +5,8 @@ from src.backend.app.feature.music_retrieval.feature_extraction import extract_f
 from src.backend.app.feature.music_retrieval.similarity import get_cosine_similarity
 from src.backend.app.feature.music_retrieval.audio_processing import get_processed_audio
 
-DIR = "src/uploads/audio"
-AUD_DIR = "src/datasets"
+DIR = "src/uploads/audio/"
+AUD_DIR = "src/datasets/"
 
 
 class AudioData:

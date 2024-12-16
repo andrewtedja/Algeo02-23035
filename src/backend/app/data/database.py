@@ -15,8 +15,8 @@ import json
 DB_NAME = "src/backend/app/data/data.db"
 DIR = "src/backend/app/data/dataset/"
 DATADIR = "src/backend/app/data/"
-IMG_DIR = "src/datasets"
-AUD_DIR = "src/datasets"
+IMG_DIR = "src/datasets/"
+AUD_DIR = "src/datasets/"
 
 
 # Menyimpan semua data sekaligus

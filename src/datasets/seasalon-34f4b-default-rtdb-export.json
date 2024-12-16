@@ -1,0 +1,17 @@
+{
+  "test": {
+    "testField": "testValue"
+  },
+  "users": {
+    "admin": {
+      "Thomas N": {
+        "email": "thomas.n@compfest.id",
+        "fullName": "Thomas N",
+        "password": "Admin123",
+        "phoneNumber": "08123456789",
+        "role": "Admin",
+        "userId": 0
+      }
+    }
+  }
+}

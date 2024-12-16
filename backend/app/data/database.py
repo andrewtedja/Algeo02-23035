@@ -289,5 +289,3 @@ if __name__ == "__main__":
     with open(DIR + "audio.json", 'w') as json_file:
         json.dump(similarity_list_aud, json_file, indent=4)
     print(f"Query Audio: {runtime_aud}")
-
-

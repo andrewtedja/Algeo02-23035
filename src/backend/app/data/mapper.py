@@ -2,7 +2,7 @@ import json
 import re
 import os
 
-DIR = "src/backend/app/data/"
+DIR = "src/mapper/"
 DATASET_DIR = "src/datasets/"
 
 

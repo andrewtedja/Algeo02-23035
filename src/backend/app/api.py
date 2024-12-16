@@ -107,7 +107,7 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.post("/upload/mapper")
 async def upload_mapper(file: UploadFile = File(...)):
-    datasets_dir = os.path.join("src", "datasets")
+    datasets_dir = os.path.join("src", "mapper")
     os.makedirs(datasets_dir, exist_ok=True)
     clear_directory(datasets_dir)  # Clear old files
 

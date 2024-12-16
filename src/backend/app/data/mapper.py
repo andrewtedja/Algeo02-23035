@@ -9,7 +9,7 @@ IMAGE_DIR = DATASET_DIR + "image/"
 
 
 def generate_mapper(json_or_txt: str) -> None:
-    num_pattern = re.compile(r'(\d+)')
+    num_pattern = re.compile(r'_([0-9]+)\.[^\.]+$')
     mapping = []
     audio_files = [file for file in os.listdir(AUDIO_DIR)]
     image_files = [file for file in os.listdir(IMAGE_DIR)]

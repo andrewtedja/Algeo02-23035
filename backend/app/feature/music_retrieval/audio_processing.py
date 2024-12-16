@@ -1,4 +1,4 @@
-from audio_load import preprocess_midi, preprocess_wav
+from backend.app.feature.music_retrieval.audio_load import preprocess_midi, preprocess_wav
 
 
 # Windowing

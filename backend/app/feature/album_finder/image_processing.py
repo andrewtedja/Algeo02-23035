@@ -18,11 +18,10 @@ class ImageData:
         self.filename = filename
         self.pixels = pixels
         self.modified_pixels = mod_pixels
-        self.size = int(np.sqrt(len(self.pixels)))if self.pixels is not None else None
-        self.standardized_pixels = None
         self.pca = None
         self.k = None   # Principal Component Count
         self.euclid_distance = None
+        self.similarity = None
 
     def compress_pixels(self):
         buffer = io.BytesIO()
@@ -257,34 +256,7 @@ def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> 
         z = images.pca
         distance = np.sqrt(np.sum((q - z) ** 2))
         images.euclid_distance = distance
-
-
-################# Retrieval and Output #################
-# def master():
-#     start = time()
-
-#     dataset = load_dataset()
-#     query = [load_query("query/query.png")]
-
-#     pixel_means = get_pixel_means(dataset)
-
-#     standardize_images(dataset, pixel_means)
-#     standardize_images(query, pixel_means)
-
-#     Uk = principal_component_analysis_dataset(dataset)
-#     query[0].k = dataset[0].k
-#     principal_component_analysis_query(query[0], Uk)
-#     calculate_eucledian_distance(dataset, query[0])
-
-#     # TESTING
-#     closest_results = sorted(
-#     [image for image in dataset if image.euclid_distance < 1000000], # Filter
-#     key=lambda image: image.euclid_distance  # Sort
-# )
-#     displayObjectList(closest_results)
-#     end = time()
-
-#     print(f"Runtime: {end - start}")
+        images.similarity = (2000 - distance) / 2000
 
 
 ################# UTILITY #################

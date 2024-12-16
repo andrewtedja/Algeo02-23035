@@ -1,9 +1,10 @@
 import sqlite3 as SQL
 import backend.app.feature.album_finder.image_processing as IMG
-# import backend.app.feature.music_retrieval.main as MSC
+import backend.app.feature.music_retrieval.main as MSC
 import numpy as np
-# import os
-
+import os
+import time
+import json
 # DI RUN DARI ROOT (src)
 
 # NGECEK DB
@@ -19,23 +20,24 @@ AUD_DIR = "backend/app/data/dataset/audio"
 # Menyimpan semua data sekaligus
 class ImageDataset:
     def __init__(self):
-        pass
+        self.dataset = None
+        self.Uk = None
+        self.pixel_means = None
 
     def load(self):
         self.dataset, self.Uk, self.pixel_means = load_and_proccess_image_dataset()
 
 
-# menyimpan masing masing file
-class AudioData:
-    def __init__(self, filename):
-        self.name = filename
-        self.atb = None
-        self.rtb = None
-        self.ftb = None
+class AudioDataset:
+    def __init__(self):
+        self.dataset = None
+
+    def load(self):
+        self.dataset = load_and_proccess_audio_dataset()
 
 
 # Dipanggil saat upload dataset
-def load_and_proccess_image_dataset() -> tuple[list[IMG.ImageData], IMG.Matrix, IMG.Vector]:
+def load_and_proccess_image_dataset() -> tuple[list[IMG.ImageData], list, IMG.Vector]:
     dataset = IMG.load_dataset(IMG_DIR)
     pixel_means = IMG.get_pixel_means(dataset)
     IMG.standardize_images(dataset, pixel_means)
@@ -44,28 +46,30 @@ def load_and_proccess_image_dataset() -> tuple[list[IMG.ImageData], IMG.Matrix, 
     return dataset, Uk, pixel_means
 
 
-# def load_and_proccess_audio_dataset() -> list[AudioData]:
-#     audio_dataset = []
-#     for filename in os.listdir(AUD_DIR):
-#         if filename.endswith(".wav", ".mid"):
-#             audio_file = AudioData(filename)
-#             file_pitch = MSC.get_processed_audio(AUD_DIR + filename)
-#             atb, rtb, ftb = MSC.extract_features(file_pitch)
+def load_and_proccess_audio_dataset() -> list[MSC.AudioData]:
+    audio_dataset = []
+    for filename in os.listdir(AUD_DIR):
+        if filename.endswith((".mid", ".wav")):
+            audio_file = MSC.AudioData(filename)
+            audio_file.extract_features()
+            audio_dataset.append(audio_file)
+    return audio_dataset
 
-#     MSC.get_processed_audio()
 
-
-def matrix_buffering(matrix: IMG.Matrix):
+def matrix_buffering(matrix: list):
     buffer = IMG.io.BytesIO()
     np.save(buffer, matrix)
     return buffer.getvalue()
 
 
-def create_tables(cursor: SQL.Cursor) -> None:
+def create_tables() -> None:
     # CLEAR TABLE
+    conn = SQL.connect(DB_NAME)
+    cursor = conn.cursor()
+
     cursor.execute('DROP TABLE IF EXISTS image_dataset')
     cursor.execute('DROP TABLE IF EXISTS image_matrix')
-    cursor.execute('DROP TABLE IF EXISTS music_features')
+    cursor.execute('DROP TABLE IF EXISTS audio_dataset')
 
     cursor.execute('''
     CREATE TABLE image_dataset (
@@ -80,20 +84,28 @@ def create_tables(cursor: SQL.Cursor) -> None:
         pixel_means BLOB NOT NULL)
 ''')
     cursor.execute('''
-    CREATE TABLE music_features (
+    CREATE TABLE audio_dataset (
         filename TEXT PRIMARY KEY,
         atb BLOB NOT NULL,
         rtb BLOB NOT NULL,
         ftb BLOB NOT NULL)
 ''')
+    cursor.close()
 
 
+# def save_to_database(dataset: list[IMG.ImageData], Uk: IMG.Matrix, pixel_means: IMG.Vector) -> None:  # noqa
+def save_image_to_database() -> float:  # return runtime
+    start = time.time()
 
-def save_to_database(dataset: list[IMG.ImageData], Uk: IMG.Matrix, pixel_means: IMG.Vector) -> None:  # noqa
     conn = SQL.connect(DB_NAME)
     cursor = conn.cursor()
 
-    create_tables(cursor)
+    data = ImageDataset()
+    data.load()
+
+    dataset = data.dataset
+    Uk = data.Uk
+    pixel_means = data.pixel_means
 
     for image in dataset:
         filename = image.filename
@@ -108,9 +120,36 @@ def save_to_database(dataset: list[IMG.ImageData], Uk: IMG.Matrix, pixel_means: 
                    (matrix_buffering(Uk), matrix_buffering(pixel_means)))
     conn.commit()
     conn.close()
+    return (time.time() - start)
 
 
-def fetch_images_from_database() -> tuple[list[IMG.ImageData], IMG.Matrix, IMG.Vector]:
+def save_audio_to_database() -> float:
+    start = time.time()
+    conn = SQL.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    data = AudioDataset()
+    start = time.time()
+    data.load()
+
+    dataset = data.dataset
+
+    for audio in dataset:
+        filename = audio.filename
+        atb = matrix_buffering(audio.atb)
+        rtb = matrix_buffering(audio.rtb)
+        ftb = matrix_buffering(audio.ftb)
+        cursor.execute(
+            "INSERT INTO audio_dataset (filename, atb, rtb, ftb) VALUES (?, ?, ?, ?)",
+            (filename, atb, rtb, ftb)
+        )
+
+    conn.commit()
+    conn.close()
+    return (time.time() - start)
+
+
+def fetch_images_from_database() -> ImageDataset:
     conn = SQL.connect(DB_NAME)
     cursor = conn.cursor()
 
@@ -132,9 +171,107 @@ def fetch_images_from_database() -> tuple[list[IMG.ImageData], IMG.Matrix, IMG.V
     Uk_matrix = np.load(IMG.io.BytesIO(row[0]))
     pixel_means = np.load(IMG.io.BytesIO(row[1]))
     conn.close()
-    return dataset, Uk_matrix, pixel_means
+
+    data = ImageDataset()
+    data.dataset = dataset
+    data.Uk = Uk_matrix
+    data.pixel_means = pixel_means
+    return data
 
 
-# dataset, Uk, means = load_and_proccess_image_dataset()
-# save_to_database(dataset, Uk, means)
-dataset, Uk, means = fetch_images_from_database()
+def fetch_audio_from_database() -> AudioDataset:
+    conn = SQL.connect(DB_NAME)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT filename, atb, rtb, ftb FROM audio_dataset")
+    rows = cursor.fetchall()
+
+    dataset = []
+    for filename, atb, rtb, ftb in rows:
+        audioData = MSC.AudioData(filename)
+
+        audioData.atb = np.load(IMG.io.BytesIO(atb))
+        audioData.rtb = np.load(IMG.io.BytesIO(rtb))
+        audioData.ftb = np.load(IMG.io.BytesIO(ftb))
+        dataset.append(audioData)
+
+    conn.close()
+
+    data = ImageDataset()
+    data.dataset = dataset
+    return data
+
+
+def query_image(query_path) -> tuple[list[dict], float]:
+    start_time = time.time()
+    similarity_list = []
+    query = [IMG.load_query(query_path)]
+
+    image_dataset = fetch_images_from_database()
+    dataset = image_dataset.dataset
+    Uk = image_dataset.Uk
+    pixel_means = image_dataset.pixel_means
+
+    IMG.standardize_images(query, pixel_means)
+    query[0].k = image_dataset.dataset[0].k
+    IMG.principal_component_analysis_query(query[0], Uk)
+    IMG.calculate_eucledian_distance(dataset, query[0])
+
+    closest_results = sorted(
+        [image for image in dataset if image.euclid_distance < 1000000],  # Filter
+        key=lambda image: image.euclid_distance)
+
+    for image_file in closest_results:
+        similarity_list.append(
+            {
+                "image_name": image_file.filename,
+                "similarity": image_file.similarity
+            }
+        )
+    return filter_result(similarity_list), (time.time() - start_time)
+
+
+def query_audio(query_path) -> tuple[list[dict], float]:
+    start_time = time.time()
+    similarity_list = []
+    query_name = query_path.rsplit("/", 1)[-1]
+    query = MSC.AudioData(query_name, 'q')
+    query.extract_features()
+
+    audio_dataset = fetch_audio_from_database()
+
+    for audio_file in audio_dataset.dataset:
+        audio_file.calculate_similarity(query)
+        similarity_list.append(
+            {
+                "audio_name": audio_file.filename,
+                "similarity": audio_file.similarity
+            }
+        )
+
+    return filter_result(similarity_list), (time.time() - start_time)
+
+
+def filter_result(similarity_list: list):
+    filtered_list = [item for item in similarity_list if item["similarity"] >= 0.5]
+    filtered_list.sort(key=lambda x: x["similarity"], reverse=True)
+
+    if len(filtered_list) > 30:
+        filtered_list = filtered_list[:30]
+    return filtered_list
+
+
+if __name__ == "__main__":
+    create_tables()
+
+    print(f"Load Image Runtime: {save_image_to_database()}")
+    similarity_list_img, runtime_img = query_image(DIR + 'query/query.png')
+    with open(DIR + "image.json", 'w') as json_file:
+        json.dump(similarity_list_img, json_file, indent=4)
+    print(f"Query Image: {runtime_img}")
+
+    print(f"Load Audio Runtime: {save_audio_to_database()}")
+    similarity_list_aud, runtime_aud = query_audio(DIR + 'query/query.wav')
+    with open(DIR + "audio.json", 'w') as json_file:
+        json.dump(similarity_list_aud, json_file, indent=4)
+    print(f"Query Audio: {runtime_aud}")

@@ -1,6 +1,4 @@
 import librosa
-import numpy as np
-import os
 from mido import MidiFile
 
 
@@ -14,7 +12,7 @@ def preprocess_wav(file_path):
     # Convert pitch (Hz) to MIDI note numbers
     pitch_data = []
     for pitch in pitches:
-        if pitch > 0: 
+        if pitch > 0:
             pitch_data.append(int(librosa.hz_to_midi(pitch)))
         else:
             pitch_data.append(0)

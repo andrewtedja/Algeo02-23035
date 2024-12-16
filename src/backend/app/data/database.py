@@ -12,11 +12,11 @@ import json
 # /mnt/d/RaFa/Main/School/ITB/Kuliah 4 Tahun/Sem 3/Algeo/Tubes/Algeo02-23035/src/backend/app/data
 
 
-DB_NAME = "backend/app/data/data.db"
-DIR = "backend/app/data/dataset/"
-DATADIR = "backend/app/data/"
-IMG_DIR = "backend/app/data/dataset/image"
-AUD_DIR = "backend/app/data/dataset/audio"
+DB_NAME = "src/backend/app/data/data.db"
+DIR = "src/backend/app/data/dataset/"
+DATADIR = "src/backend/app/data/"
+IMG_DIR = "src/datasets"
+AUD_DIR = "src/datasets"
 
 
 # Menyimpan semua data sekaligus

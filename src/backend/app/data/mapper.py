@@ -3,38 +3,33 @@ import re
 import os
 
 DIR = "backend/app/data/"
-DATASET_DIR = DIR + "dataset/"
-AUDIO_DIR = DATASET_DIR + "audio/"
-IMAGE_DIR = DATASET_DIR + "image/"
+DATASET_DIR = "src/datasets"
 
 
 def generate_mapper(json_or_txt: str) -> None:
     num_pattern = re.compile(r'_([0-9]+)\.[^\.]+$')
     mapping = []
-    audio_files = [file for file in os.listdir(AUDIO_DIR)]
-    image_files = [file for file in os.listdir(IMAGE_DIR)]
-    audio_files.sort()
-    image_files.sort()
 
     image_map = {}
-    for image in os.listdir(IMAGE_DIR):
-        if image.endswith('.png'):
+    for image in os.listdir(DATASET_DIR):
+        if image.endswith((".png", ".jpg", ".jpeg")):
             match = num_pattern.search(image)
             if match:
                 image_number = match.group(1)
                 image_map[image_number] = image
 
     mapping = []
-    for audio in os.listdir(AUDIO_DIR):
-        match = num_pattern.search(audio)
-        if match:
-            audio_number = match.group(1)
-            # Check if the number exists in the image hashmap
-            if audio_number in image_map:
-                mapping.append({
-                    "audio_name": audio,
-                    "pic_name": image_map[audio_number]
-                })
+    for audio in os.listdir(DATASET_DIR):
+        if audio.endswith((".mid", ".wav", ".midi")):
+            match = num_pattern.search(audio)
+            if match:
+                audio_number = match.group(1)
+                # Check if the number exists in the image hashmap
+                if audio_number in image_map:
+                    mapping.append({
+                        "audio_name": audio,
+                        "pic_name": image_map[audio_number]
+                    })
     if (json_or_txt == "json"):
         with open(DIR + "mapper.json", 'w') as json_file:
             json.dump(mapping, json_file, indent=4)
@@ -86,4 +81,4 @@ def create_test_files(directory: str, files_amount: int, file_name: str, file_ex
 
 
 if __name__ == "__main__":
-    generate_mapper("txt")
+    generate_mapper("json")

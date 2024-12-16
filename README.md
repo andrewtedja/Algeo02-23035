@@ -37,7 +37,7 @@ Welcome to **SongSmart**, your smart solution for **Image Retrieval** and **Musi
 ⚡ **Fast & Accurate**: Experience rapid, precise results powered by advanced vector techniques.
 
 </br>
-<h3><b>Discover. Match. Enjoy.s</b></h3>
+<h3><b>Discover. Match. Enjoy.</b></h3>
 Find the music you can't name and the album covers you can't place.
 SongSmart makes finding images and music as intuitive as a hum or a click. 🚀
 

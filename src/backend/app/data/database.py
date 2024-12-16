@@ -1,7 +1,7 @@
 import sqlite3 as SQL
-import backend.app.feature.album_finder.image_processing as IMG
-import backend.app.feature.music_retrieval.main as MSC
-import backend.app.data.mapper as MAP
+import src.backend.app.feature.album_finder.image_processing as IMG
+import src.backend.app.feature.music_retrieval.main as MSC
+import src.backend.app.data.mapper as MAP
 import numpy as np
 import os
 import time

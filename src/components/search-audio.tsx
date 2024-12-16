@@ -51,8 +51,8 @@ export default function SearchAudio() {
 			const data = await response.json();
 			setSearchResults(data.results);
 			setSearchRuntime(data.runtime);
-		} catch (err: any) {
-			setUploadError(err.message);
+		} catch (err) {
+			throw err;
 		}
 	};
 
@@ -69,26 +69,18 @@ export default function SearchAudio() {
 		setCurrentPage(pageNumber);
 	};
 
-	const handlePrevious = () => {
-		handlePageChange(currentPage - 1);
-	};
-
-	const handleNext = () => {
-		handlePageChange(currentPage + 1);
-	};
-
 	return (
 		<Layout title="Music Information Retrieval">
 			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 				<div className="flex items-center justify-between mb-8">
 					<h1 className="text-4xl font-extrabold text-gray-900 flex items-center gap-3">
 						<Music className="text-sky-500" size={40} />
-						Search by Audio
+						Search Audio
 					</h1>
 					<Button
 						className="hover:bg-black hover:text-white transition duration-500"
-						onClick={handleSearch}
 						disabled={!selectedFile}
+						onClick={handleSearch}
 					>
 						<Search className="mr-2" /> Search
 					</Button>
@@ -97,9 +89,9 @@ export default function SearchAudio() {
 				<div className="mb-12">
 					<div
 						className="border-2 border-dashed border-sky-200 bg-sky-50/50 
-							rounded-2xl p-8 text-center transition-all duration-100 
-							hover:border-sky-400 hover:bg-sky-50 
-							group cursor-pointer relative"
+								rounded-2xl p-8 text-center transition-all duration-100 
+								hover:border-sky-400 hover:bg-sky-50 
+								group cursor-pointer relative"
 					>
 						<input
 							type="file"
@@ -109,8 +101,7 @@ export default function SearchAudio() {
 						/>
 						<div className="flex flex-col items-center justify-center space-y-4">
 							<Upload
-								className="text-sky-500 group-hover:text-sky-600 
-									transition-colors duration-300"
+								className="text-sky-500 group-hover:text-sky-600 transition-colors duration-300"
 								size={64}
 								strokeWidth={1.5}
 							/>
@@ -175,6 +166,7 @@ export default function SearchAudio() {
 											{item.audio_name || "Unknown Audio"}
 										</h3>
 										<p className="text-muted-foreground mb-2">
+											Matched with:{" "}
 											{item.image_name ||
 												"No corresponding image"}
 										</p>

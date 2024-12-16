@@ -13,6 +13,7 @@ export default function UploadDatasetMapper() {
 	const [mapperUploaded, setMapperUploaded] = useState(false);
 	const [uploadError, setUploadError] = useState(null);
 	const [uploadMessage, setUploadMessage] = useState(null);
+	const [uploadRuntime, setUploadRuntime] = useState<number | null>(null);
 
 	const handleDatasetChange = (event) => {
 		const file = event.target.files[0];
@@ -63,8 +64,10 @@ export default function UploadDatasetMapper() {
 		if (!selectedDataset) return;
 		try {
 			const res = await uploadFile(selectedDataset, "dataset");
+			setUploadRuntime(res.runtime);
 			setUploadMessage(res.message);
 			setDatasetUploaded(true);
+			setSelectedDataset(null);
 		} catch (err) {
 			throw err;
 		}
@@ -76,6 +79,7 @@ export default function UploadDatasetMapper() {
 			const res = await uploadFile(selectedMapper, "mapper");
 			setUploadMessage(res.message);
 			setMapperUploaded(true);
+			setSelectedMapper(null);
 		} catch (err) {
 			throw err;
 		}
@@ -99,7 +103,7 @@ export default function UploadDatasetMapper() {
 					>
 						<input
 							type="file"
-							accept=".zip"
+							accept=".zip, .rar"
 							className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
 							onChange={handleDatasetChange}
 						/>
@@ -113,7 +117,7 @@ export default function UploadDatasetMapper() {
 							<h3 className="text-xl font-semibold text-gray-800">
 								{selectedDataset
 									? `Selected Dataset: ${selectedDataset.name}`
-									: "Drag and Drop || Click to Upload Dataset (ZIP)"}
+									: "Drag and Drop || Click to Upload Dataset (ZIP / RAR)"}
 							</h3>
 							<p className="text-muted-foreground">
 								Upload a zip file containing your dataset
@@ -173,6 +177,15 @@ export default function UploadDatasetMapper() {
 				{uploadMessage && (
 					<div className="text-green-500 mb-4">
 						Success: {uploadMessage}
+					</div>
+				)}
+				{datasetUploaded && uploadRuntime !== null && (
+					<div className="text-gray-700 mt-4">
+						Upload Dataset Runtime:{" "}
+						<span className="font-bold">
+							{uploadRuntime.toFixed(3)} seconds
+						</span>
+						.
 					</div>
 				)}
 				{uploadError && (

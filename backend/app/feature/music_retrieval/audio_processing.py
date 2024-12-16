@@ -1,13 +1,15 @@
-from audio_load import preprocess_midi, preprocess_wav
+from backend.app.feature.music_retrieval.audio_load import preprocess_midi, preprocess_wav
+
 
 # Windowing
-def apply_sliding_window(data, window, step): 
+def apply_sliding_window(data, window, step):
     segments = []
-    
+
     for i in range(0, len(data) + 1 - window, step):
         segment = data[i:i + window]
         segments.append(segment)
-    return segments;
+    return segments
+
 
 # Audio Processing
 def get_processed_audio(file_path):
@@ -28,7 +30,7 @@ def get_processed_audio(file_path):
     # # Normalisasi Pitch (Opsional)
     # mu = np.mean(pitches)
     # sigma = np.std(pitches)
-    
+
     # if (sigma == 0):
     #     sigma = 1
 

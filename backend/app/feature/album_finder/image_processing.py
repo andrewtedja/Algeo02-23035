@@ -1,7 +1,8 @@
 from PIL import Image as PIL
 import numpy as np
 import os
-from time import time
+import io
+from time import time   # noqa
 from typing import *
 
 # TYPE DEFINING
@@ -10,38 +11,48 @@ String = str
 Vector = List[float]
 VectorList = List[Vector]
 
+
 # CLASS
 class ImageData:
-    def __init__(self, filename : String, pixels: Vector)-> None:
+    def __init__(self, filename: String, pixels: Vector, mod_pixels: Vector) -> None:
         self.filename = filename
         self.pixels = pixels
-        self.size =  int(np.sqrt(len(self.pixels)))if self.pixels is not None else None
-        self.standardized_pixels = None
+        self.modified_pixels = mod_pixels
         self.pca = None
         self.k = None   # Principal Component Count
         self.euclid_distance = None
+        self.similarity = None
+
+    def compress_pixels(self):
+        buffer = io.BytesIO()
+        img = PIL.fromarray(self.pixels)  # Convert NumPy array to image
+        img = img.convert('RGB')
+        img.save(buffer, format="JPEG", quality=75, optimize=True)  # Compress image
+        return buffer.getvalue()
+
     def __str__(self):
         # return '\n'.join(f"{key}: {value}" for key, value in self.__dict__.items())
-        return f"File: {self.filename}\nEuclid: {self.euclid_distance}\n"
+        return f"File: {self.filename}\nPixels: {self.pixels}\nPCA: {self.pca}\n"
 
 
 ################# Image Processing and Loading #################
 # Mendapatkan Matrix grayscale
-def extract_grayscale(file_path : String) -> Matrix:
+def extract_grayscale(file_path: String) -> Matrix:
     img = PIL.open(file_path).convert("RGB")
-    rgb = np.array(img) # Array RGB
+    rgb = np.array(img)  # Array RGB
 
     R = rgb[:, :, 0]
     G = rgb[:, :, 1]
     B = rgb[:, :, 2]
-    
+
     grayscale = 0.2989 * R + 0.5870 * G + 0.1140 * B
-    grayscale = grayscale.astype(np.uint8)  # Membuat hasil perhitungan Integer
+    grayscale = grayscale.astype(np.uint16)  # Membuat hasil perhitungan Integer
 
     return grayscale
 
+
 # Menyamakan ukuran dari gambar (mengubah satu gambar menjadi ukuran tertentu)
-def crop_image(grayscale : Matrix) -> Matrix:
+def crop_image(grayscale: Matrix) -> Matrix:
     width, height = grayscale.shape[1], grayscale.shape[0]
 
     if (width > height):
@@ -60,89 +71,91 @@ def crop_image(grayscale : Matrix) -> Matrix:
     cropped = grayscale[int(start_row):int(end_row), int(start_col):int(end_col)]
     return cropped
 
-def normalize_image(cropped : Matrix) -> Matrix:
-    dim = (16,16)
-    img = PIL.fromarray(cropped)
-    resized_img = img.resize(dim, PIL.Resampling.BILINEAR) # Resizing
-    return np.array(resized_img) # Return numpy array
 
-def matrix_to_1d(resized : Matrix) -> Vector:
+def normalize_image(cropped: Matrix) -> Matrix:
+    dim = (16, 16)
+    img = PIL.fromarray(cropped)
+    resized_img = img.resize(dim, PIL.Resampling.BILINEAR)  # Resizing
+    return np.array(resized_img)  # Return numpy array
+
+
+def matrix_to_1d(resized: Matrix) -> Vector:
     flattened = []
     for row in resized:
         for value in row:
-            flattened.append(value) # append setiap row ke dalam 1 row saja
+            flattened.append(value)  # append setiap row ke dalam 1 row saja
     return np.array(flattened)      # numpy array untuk speed efficiency
 
+
 # Menyatukan semua proses diatas
-def preprocess_image(file_path : String) -> Vector:
+def preprocess_image(file_path: String) -> Vector:
     grayscale = extract_grayscale(file_path)
     cropped = crop_image(grayscale)
     resized = normalize_image(cropped)
     vector = matrix_to_1d(resized)
     return vector
 
+
 # Memproses data-data gambar dataset
-def load_dataset(directory :  String) -> list[ImageData]:
+def load_dataset(directory: String) -> list[ImageData]:
     dataset_list = []
     for filename in os.listdir(directory):
         file_path = os.path.join(directory, filename)
-        image = ImageData(filename, preprocess_image(file_path))
+        img = PIL.open(file_path)
+        image = ImageData(filename, np.array(img), preprocess_image(file_path))
         dataset_list.append(image)
     return dataset_list
+
 
 # Memproses data gambar query
 def load_query(file_path) -> ImageData:
     filename = os.path.basename(file_path)
-    image = ImageData(filename, preprocess_image(file_path))
+    img = PIL.open(file_path)
+    image = ImageData(filename, np.array(img), preprocess_image(file_path))
     return image
-
-
-
 
 
 ################# Data Centering (Standardization) #################
 # Menghitung rata2 pixel gambar dataset
-def get_pixel_means(dataset : list[ImageData]) -> Vector:
-    pixel_matrix = np.array([image.pixels for image in dataset])
+def get_pixel_means(dataset: list[ImageData]) -> Vector:
+    pixel_matrix = np.array([image.modified_pixels for image in dataset])
     img_total = len(dataset)
     pixel_means = []
 
     for j in range(pixel_matrix.shape[1]):
         pixel_sum = 0
-        for i in range(img_total):
-            pixel_sum += pixel_matrix[i][j]
-        pixel_means.append(pixel_sum/img_total)
+        pixel_sum = np.sum(pixel_matrix, dtype=np.int32)
+        pixel_means.append(pixel_sum / img_total)
 
     return np.array(pixel_means)
 
-def standardize_images(dataset : list[ImageData], pixel_means) -> None:
+
+def standardize_images(dataset: list[ImageData], pixel_means) -> None:
     # Ubah vector menjadi matrix, dimana setiap baris adalah image berbeda
     # dan setiap kolom adalah pixel2 nya matrix N*jumlah_pixel
-    pixel_matrix = np.array([image.pixels for image in dataset])
-    standardized_pixels_list = pixel_matrix - pixel_means # Standarisasi Pixel
-    
+    pixel_matrix = np.array([image.modified_pixels for image in dataset])
+    standardized_pixels_list = pixel_matrix - pixel_means  # Standarisasi Pixel
+
     # Perbarui pixel pada dataset
     for image, standardized_pixels in zip(dataset, standardized_pixels_list):
-        image.standardized_pixels = standardized_pixels
-
-
-
+        image.modified_pixels = standardized_pixels
 
 
 ################# PCA Computation (SVD) #################
 # Digunakan pada dataset terstandarisasi
-def get_covariance_matrix(dataset : list[ImageData]) -> Matrix:
+def get_covariance_matrix(dataset: list[ImageData]) -> Matrix:
 
     img_count = len(dataset)
     # Mengubah banyak flattened vectors menjadi matrix
-    X_matrix = np.array([image.standardized_pixels for image in dataset])
+    X_matrix = np.array([image.modified_pixels for image in dataset])
 
     covariance_matrix = (X_matrix.T @ X_matrix) / img_count
 
     return covariance_matrix
 
+
 # Helper to get eigenvalues
-def qr_decomposition(A : Matrix) -> Tuple[Matrix, Matrix]:
+def qr_decomposition(A: Matrix) -> Tuple[Matrix, Matrix]:
     m, n = A.shape  # Ambil row dan col
     Q = np.zeros((m, n))
     R = np.zeros((n, n))
@@ -159,10 +172,11 @@ def qr_decomposition(A : Matrix) -> Tuple[Matrix, Matrix]:
 
     return Q, R
 
+
 # Menggunakan QR Algorithm https://www.youtube.com/watch?v=McHW221J3UM
-def get_eigen(A : Matrix) -> Tuple[Vector, Matrix]:
+def get_eigen(A: Matrix) -> Tuple[Vector, Matrix]:
     iter = 1000
-    tol = 10-6  # Tolerance (presisi)
+    tol = 10 - 6  # Tolerance (presisi)
 
     n = A.shape[0]
     Q_total = np.eye(n)
@@ -177,46 +191,50 @@ def get_eigen(A : Matrix) -> Tuple[Vector, Matrix]:
         off_diag = A - np.diag(np.diagonal(A))
         if np.sqrt(np.sum(off_diag**2)) < tol:
             break
-        
-        eigenvalues = np.maximum(np.diagonal(A), 0) # Round negatives to zero
+
+        eigenvalues = np.maximum(np.diagonal(A), 0)  # Round negatives to zero
         return eigenvalues, Q_total
-    
+
+
 # Mencari angka optimal untuk k
-def choose_k(eigenvalues : Vector) -> int:
+def choose_k(eigenvalues: Vector) -> int:
     threshold = 0.95
     S = np.sqrt(eigenvalues)    # singular values
 
     total_variance = np.sum(S**2)
     cumulative_variance = np.cumsum(S**2)
     k = np.argmax(cumulative_variance >= threshold * total_variance) + 1
-    return k 
-    
+    return k
+
+
 # I.S. M adalah matriks n x n (square)
 # Mengembalikan Matriks U
-def singular_value_decomposition(C : Matrix) -> Tuple[Matrix, int]:
-    # eigenvalues, eigenvectors = np.linalg.eig(C)
-    eigenvalues, eigenvectors = get_eigen(C)
+def singular_value_decomposition(C: Matrix) -> Tuple[Matrix, int]:
+    eigenvalues, eigenvectors = np.linalg.eig(C)
+    # eigenvalues, eigenvectors = get_eigen(C)
     # Urut eigenvalue berdasarkan nilai singular
     sorted_indices = np.argsort(eigenvalues)[::-1]
-    U = eigenvectors[:,sorted_indices]
+    U = eigenvectors[:, sorted_indices]
     # U, s, vh = np.linalg.svd(C)
     k = choose_k(eigenvalues)
     return U, k
 
-def get_top_k_components(U : Matrix, k : int) -> Matrix:
+
+def get_top_k_components(U: Matrix, k: int) -> Matrix:
     return U[:, :k]
+
 
 # Digunakan pada dataset yang sudah distandarisasi
 # Set atribut pca pada List ImageData
-def principal_component_analysis_dataset(dataset : list[ImageData]) -> Matrix:
-    X = np.array([image.standardized_pixels for image in dataset])
+def principal_component_analysis_dataset(dataset: list[ImageData]) -> Matrix:
+    X = np.array([image.modified_pixels for image in dataset])
 
     C = get_covariance_matrix(dataset)
     U, k = singular_value_decomposition(C)
 
     if dataset[0].k is not None:    # Overwrite k (ini hanya untuk query)
         k = dataset[0].k
-    Uk = get_top_k_components(U,k)
+    Uk = get_top_k_components(U, k)
     Z_matrix = X @ Uk
 
     for image, projection in zip(dataset, Z_matrix):
@@ -224,54 +242,25 @@ def principal_component_analysis_dataset(dataset : list[ImageData]) -> Matrix:
         image.k = k
     return Uk
 
-def principal_component_analysis_query(query : ImageData, Uk : Matrix) -> None:
-    pixels = query.standardized_pixels
+
+def principal_component_analysis_query(query: ImageData, Uk: Matrix) -> None:
+    pixels = query.modified_pixels
     projection = pixels @ Uk
     query.pca = np.real(projection)
 
 
 ################# Similarity Computation #################
-def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> None:
+def calculate_eucledian_distance(dataset: list[ImageData], query: ImageData) -> None:  # noqa 
     q = query.pca
     for images in dataset:
         z = images.pca
-        distance = np.sqrt(np.sum((q - z) ** 2)) 
+        distance = np.sqrt(np.sum((q - z) ** 2))
         images.euclid_distance = distance
-
-
-
-
-################# Retrieval and Output #################
-# def master():
-#     start = time()
-
-#     dataset = load_dataset()
-#     query = [load_query("query/query.png")]
-
-#     pixel_means = get_pixel_means(dataset)
-
-#     standardize_images(dataset, pixel_means)
-#     standardize_images(query, pixel_means)
-
-#     Uk = principal_component_analysis_dataset(dataset)
-#     query[0].k = dataset[0].k
-#     principal_component_analysis_query(query[0], Uk)
-#     calculate_eucledian_distance(dataset, query[0])
-
-#     # TESTING
-#     closest_results = sorted(
-#     [image for image in dataset if image.euclid_distance < 1000000],  # Filter
-#     key=lambda image: image.euclid_distance  # Sort
-# )
-#     displayObjectList(closest_results)
-#     end = time()
-
-#     print(f"Runtime: {end - start}")
+        images.similarity = (2000 - distance) / 2000
 
 
 ################# UTILITY #################
-def displayObjectList(list : list[object]) -> None :
+def displayObjectList(list: list[object]) -> None:
     for object in list:
         print(object)
         print()
-

@@ -1,30 +1,58 @@
 [
-    {
-        "audio_name": "speaker_1.wav",
-        "pic_name": "peta_1.png"
-    },
-    {
-        "audio_name": "speaker_2.wav",
-        "pic_name": "coretdino_2.png"
-    },
-    {
-        "audio_name": "speaker_3.wav",
-        "pic_name": "dino_3.png"
-    },
-    {
-        "audio_name": "speaker_4.wav",
-        "pic_name": "flagdino_4.png"
-    },
-    {
-        "audio_name": "speaker_5.wav",
-        "pic_name": "lss_5.png"
-    },
-    {
-        "audio_name": "twinkle_6.mid",
-        "pic_name": "wbd_6.png"
-    },
-    {
-        "audio_name": "twinkle_7.wav",
-        "pic_name": "logo_7.jpg"
-    }
+	{
+		"audio_name": "anti_hero.wav",
+		"pic_name": "anti_hero.png"
+	},
+	{
+		"audio_name": "apt.wav",
+		"pic_name": "apt.png"
+	},
+	{
+		"audio_name": "bad_blood.wav",
+		"pic_name": "bad_blood.png"
+	},
+	{
+		"audio_name": "blank_space.wav",
+		"pic_name": "blank_space.png"
+	},
+	{
+		"audio_name": "cardigan.wav",
+		"pic_name": "cardigan.png"
+	},
+	{
+		"audio_name": "cruel_summer.wav",
+		"pic_name": "cruel_summer.png"
+	},
+	{
+		"audio_name": "die_with_a_smile.wav",
+		"pic_name": "die_with_a_smile.png"
+	},
+	{
+		"audio_name": "enchanted.wav",
+		"pic_name": "enchanted.png"
+	},
+	{
+		"audio_name": "fearless.wav",
+		"pic_name": "fearless.png"
+	},
+	{
+		"audio_name": "lazy_song.wav",
+		"pic_name": "lazy_song.png"
+	},
+	{
+		"audio_name": "leave_the_door_open.wav",
+		"pic_name": "leave_the_door_open.png"
+	},
+	{
+		"audio_name": "locked_out_of_heaven.wav",
+		"pic_name": "locked_out_of_heaven.png"
+	},
+	{
+		"audio_name": "love_story.wav",
+		"pic_name": "love_story.png"
+	},
+	{
+		"audio_name": "shake_it_off.wav",
+		"pic_name": "shake_it_off.png"
+	}
 ]

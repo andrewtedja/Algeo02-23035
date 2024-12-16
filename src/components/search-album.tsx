@@ -134,7 +134,6 @@ export default function SearchAlbum() {
 					)}
 				</div>
 
-				{/* Search Results */}
 				{searchResults.length > 0 && (
 					<div className="mb-8">
 						<div className="flex justify-between items-center mb-4">
@@ -149,7 +148,7 @@ export default function SearchAlbum() {
 							</p>
 						</div>
 
-						<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
+						<div className="grid grid-cols-4 lg:grid-cols-5 gap-3">
 							{currentItems.map((item: any, i: number) => (
 								<Card
 									key={i}
@@ -165,16 +164,16 @@ export default function SearchAlbum() {
 										/>
 									</div>
 									<div className="p-5">
-										<h3 className="font-bold text-md text-gray-900 mb-1">
+										<h3 className="font-bold text-xs text-gray-900 mb-1 break-words">
 											{item.image_name || "Unknown Image"}
 										</h3>
-										<p className="text-muted-foreground mb-2">
+										<p className="text-muted-foreground text-sm mb-2">
 											{item.audio_name ||
 												"No corresponding audio"}
 										</p>
 										<Badge
 											variant="secondary"
-											className="bg-slate-100 text-slate-800"
+											className="bg-amber-100 text-slate-800"
 										>
 											Match:{" "}
 											{(item.similarity * 100).toFixed(2)}

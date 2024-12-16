@@ -69,6 +69,14 @@ export default function SearchAudio() {
 		setCurrentPage(pageNumber);
 	};
 
+	const handlePrevious = () => {
+		handlePageChange(currentPage - 1);
+	};
+
+	const handleNext = () => {
+		handlePageChange(currentPage + 1);
+	};
+
 	return (
 		<Layout title="Music Information Retrieval">
 			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -138,7 +146,7 @@ export default function SearchAudio() {
 							</p>
 						</div>
 
-						<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
+						<div className="grid grid-cols-5 gap-3">
 							{currentItems.map((item: any, i: number) => (
 								<Card
 									key={i}
@@ -154,17 +162,17 @@ export default function SearchAudio() {
 										/>
 									</div>
 									<div className="p-5">
-										<h3 className="font-bold text-md text-gray-900 mb-1">
+										<h3 className="font-bold text-sm text-gray-900 mb-1 break-words">
 											{item.audio_name || "Unknown Audio"}
 										</h3>
-										<p className="text-muted-foreground mb-2">
+										<p className="text-muted-foreground text-xs mb-2 break-words">
 											Matched with:{" "}
 											{item.image_name ||
 												"No corresponding image"}
 										</p>
 										<Badge
 											variant="secondary"
-											className="bg-slate-100 text-slate-800"
+											className="bg-amber-100 text-slate-800"
 										>
 											Match:{" "}
 											{(item.similarity * 100).toFixed(2)}

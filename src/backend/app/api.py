@@ -51,7 +51,7 @@ def detect_dataset_type(base_dir: str) -> str:
 async def upload_dataset(file: UploadFile = File(...)):
     datasets_dir = os.path.join("src", "datasets")
     os.makedirs(datasets_dir, exist_ok=True)
-    clear_directory(datasets_dir)  # Clear old files
+    clear_directory(datasets_dir)  
 
     dataset_path = os.path.join(datasets_dir, file.filename)
     with open(dataset_path, "wb") as buffer:
@@ -84,7 +84,7 @@ async def upload_dataset(file: UploadFile = File(...)):
 async def upload_album(file: UploadFile = File(...)):
     albums_dir = os.path.join("src", "uploads", "album")
     os.makedirs(albums_dir, exist_ok=True)
-    clear_directory(albums_dir)  # Clear old files before saving new one
+    clear_directory(albums_dir)  
 
     file_path = os.path.join(albums_dir, file.filename)
     with open(file_path, "wb") as buffer:
@@ -97,7 +97,7 @@ async def upload_album(file: UploadFile = File(...)):
 async def upload_audio(file: UploadFile = File(...)):
     audio_dir = os.path.join("src", "uploads", "audio")
     os.makedirs(audio_dir, exist_ok=True)
-    clear_directory(audio_dir)  # Clear old files
+    clear_directory(audio_dir)  
 
     file_path = os.path.join(audio_dir, file.filename)
     with open(file_path, "wb") as buffer:
@@ -110,7 +110,7 @@ async def upload_audio(file: UploadFile = File(...)):
 async def upload_mapper(file: UploadFile = File(...)):
     datasets_dir = os.path.join("src", "mapper")
     os.makedirs(datasets_dir, exist_ok=True)
-    clear_directory(datasets_dir)  # Clear old files
+    clear_directory(datasets_dir)  
 
     mapper_path = os.path.join(datasets_dir, file.filename)
     with open(mapper_path, "wb") as buffer:

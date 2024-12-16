@@ -6,10 +6,11 @@ import sys
 import os
 import zipfile
 import rarfile
+import PIL as PIL
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from src.backend.app.data.database import save_image_to_database, save_audio_to_database, create_tables
+from src.backend.app.data.database import save_image_to_database, save_audio_to_database, create_tables, fetch_images_from_database
 from src.backend.app.data.mapper import load_mapper, generate_mapper
 from src.backend.app.data.database import query_image
 from src.backend.app.data.database import query_audio
@@ -73,6 +74,7 @@ async def upload_dataset(file: UploadFile = File(...)):
     create_tables()
     runtime_img = save_image_to_database()
     runtime_aud = save_audio_to_database()
+
     return {
         "message": f"Dataset '{file.filename}' uploaded and saved to database!",
         "filename": file.filename,
@@ -131,7 +133,7 @@ async def search_album(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
 
-    DATADIR = "src/backend/app/data/"
+    DATADIR = "src/mapper/"
     audio_to_pic, pic_to_audio = load_mapper(DATADIR)
 
     results, runtime = query_image(query_path, pic_to_audio)
@@ -148,11 +150,11 @@ async def search_audio(file: UploadFile = File(...)):
     with open(query_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    DATADIR = "src/backend/app/data/"
+    DATADIR = "src/mapper/"
     audio_to_pic, pic_to_audio = load_mapper(DATADIR)
 
     results, runtime = query_audio(query_path, audio_to_pic)
-
+    print(results)
     return {"results": results, "runtime": runtime}
 
 @app.get("/images/{image_name}")

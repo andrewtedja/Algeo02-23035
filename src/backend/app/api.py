@@ -70,16 +70,12 @@ async def upload_dataset(file: UploadFile = File(...)):
     
     # SAVE TO DATABASE
     create_tables()
-    dataset_type = detect_dataset_type(datasets_dir)
-    if dataset_type == "image":
-        runtime = save_image_to_database()
-    else:  #audio
-        runtime = save_audio_to_database()
+    runtime_img = save_image_to_database()
+    runtime_aud = save_audio_to_database()
     return {
         "message": f"Dataset '{file.filename}' uploaded and saved to database!",
         "filename": file.filename,
-        "dataset_type": dataset_type,
-        "runtime": runtime
+        "runtime": runtime_img + runtime_aud
     }        
 
 ############################## UPLOAD FILES #############################
@@ -111,7 +107,7 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.post("/upload/mapper")
 async def upload_mapper(file: UploadFile = File(...)):
-    datasets_dir = os.path.join("src", "datasets")
+    datasets_dir = os.path.join("src", "mapper")
     os.makedirs(datasets_dir, exist_ok=True)
     clear_directory(datasets_dir)  # Clear old files
 

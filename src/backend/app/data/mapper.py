@@ -2,8 +2,8 @@ import json
 import re
 import os
 
-DIR = "backend/app/data/"
-DATASET_DIR = "src/datasets"
+DIR = "src/mapper/"
+DATASET_DIR = "src/datasets/"
 
 
 def generate_mapper(json_or_txt: str) -> None:
@@ -71,6 +71,8 @@ def load_mapper(directory: str) -> dict:
         return load_mapper_json(directory)
     elif (os.path.isfile(directory + "mapper.txt")):
         return load_mapper_txt(directory)
+    else:
+        return [], []
 
 
 def create_test_files(directory: str, files_amount: int, file_name: str, file_extension: str) -> None:

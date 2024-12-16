@@ -71,6 +71,13 @@ def load_mapper_txt(directory: str) -> dict:
     return audio_to_pic, pic_to_audio
 
 
+def load_mapper(directory: str) -> dict:
+    if (os.path.isfile(directory + "mapper.json")):
+        return load_mapper_json(directory)
+    elif (os.path.isfile(directory + "mapper.txt")):
+        return load_mapper_txt(directory)
+
+
 def create_test_files(directory: str, files_amount: int, file_name: str, file_extension: str) -> None:
     for i in range(1, files_amount + 1):
         filename = os.path.join(directory, f"{file_name}_{i}.{file_extension}")
@@ -78,5 +85,5 @@ def create_test_files(directory: str, files_amount: int, file_name: str, file_ex
             file.write(f"This is test file number {i}\n")
 
 
-generate_mapper("txt")
-print(load_mapper_txt(DIR))
+if __name__ == "__main__":
+    generate_mapper("txt")

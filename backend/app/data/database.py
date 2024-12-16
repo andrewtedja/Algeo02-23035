@@ -1,6 +1,7 @@
 import sqlite3 as SQL
 import backend.app.feature.album_finder.image_processing as IMG
 import backend.app.feature.music_retrieval.main as MSC
+import backend.app.data.mapper as MAP
 import numpy as np
 import os
 import time
@@ -13,6 +14,7 @@ import json
 
 DB_NAME = "backend/app/data/data.db"
 DIR = "backend/app/data/dataset/"
+DATADIR = "backend/app/data/"
 IMG_DIR = "backend/app/data/dataset/image"
 AUD_DIR = "backend/app/data/dataset/audio"
 
@@ -202,7 +204,7 @@ def fetch_audio_from_database() -> AudioDataset:
     return data
 
 
-def query_image(query_path) -> tuple[list[dict], float]:
+def query_image(query_path, pic_to_audio: dict) -> tuple[list[dict], float]:
     start_time = time.time()
     similarity_list = []
     query = [IMG.load_query(query_path)]
@@ -222,16 +224,21 @@ def query_image(query_path) -> tuple[list[dict], float]:
         key=lambda image: image.euclid_distance)
 
     for image_file in closest_results:
-        similarity_list.append(
-            {
-                "image_name": image_file.filename,
-                "similarity": image_file.similarity
-            }
-        )
+        similarity_entry = {
+            "image_name": image_file.filename,
+            "similarity": image_file.similarity
+        }
+
+        if image_file.filename in pic_to_audio:
+            similarity_entry["audio_name"] = pic_to_audio[image_file.filename]
+        else:
+            similarity_entry["audio_name"] = "Not Found"
+
+        similarity_list.append(similarity_entry)
     return filter_result(similarity_list), (time.time() - start_time)
 
 
-def query_audio(query_path) -> tuple[list[dict], float]:
+def query_audio(query_path, audio_to_pic: dict) -> tuple[list[dict], float]:
     start_time = time.time()
     similarity_list = []
     query_name = query_path.rsplit("/", 1)[-1]
@@ -242,12 +249,17 @@ def query_audio(query_path) -> tuple[list[dict], float]:
 
     for audio_file in audio_dataset.dataset:
         audio_file.calculate_similarity(query)
-        similarity_list.append(
-            {
-                "audio_name": audio_file.filename,
-                "similarity": audio_file.similarity
-            }
-        )
+        similarity_entry = {
+            "audio_name": audio_file.filename,
+            "similarity": audio_file.similarity
+        }
+
+        if audio_file.filename in audio_to_pic:
+            similarity_entry["image_name"] = audio_to_pic[audio_file.filename]
+        else:
+            similarity_entry["image_name"] = "Not Found"
+
+        similarity_list.append(similarity_entry)
 
     return filter_result(similarity_list), (time.time() - start_time)
 
@@ -261,17 +273,21 @@ def filter_result(similarity_list: list):
     return filtered_list
 
 
+# Create Tables dulu biar table sebelumny kehapus
 if __name__ == "__main__":
-    create_tables()
+    audio_to_pic, pic_to_audio = MAP.load_mapper(DATADIR)
+    # create_tables()
+    # print(f"Load Image Runtime: {save_image_to_database()}")
+    # print(f"Load Audio Runtime: {save_audio_to_database()}")
 
-    print(f"Load Image Runtime: {save_image_to_database()}")
-    similarity_list_img, runtime_img = query_image(DIR + 'query/query.png')
-    with open(DIR + "image.json", 'w') as json_file:
-        json.dump(similarity_list_img, json_file, indent=4)
-    print(f"Query Image: {runtime_img}")
+    # similarity_list_img, runtime_img = query_image(DIR + 'query/query.png', pic_to_audio)
+    # with open(DIR + "image.json", 'w') as json_file:
+    #     json.dump(similarity_list_img, json_file, indent=4)
+    # print(f"Query Image: {runtime_img}")
 
-    print(f"Load Audio Runtime: {save_audio_to_database()}")
-    similarity_list_aud, runtime_aud = query_audio(DIR + 'query/query.wav')
+    similarity_list_aud, runtime_aud = query_audio(DIR + 'query/query.wav', audio_to_pic)
     with open(DIR + "audio.json", 'w') as json_file:
         json.dump(similarity_list_aud, json_file, indent=4)
     print(f"Query Audio: {runtime_aud}")
+
+

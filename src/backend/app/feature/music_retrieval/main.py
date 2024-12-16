@@ -12,7 +12,7 @@ AUD_DIR = "src/datasets/"
 class AudioData:
     def __init__(self, filename, type=None):
         if (type == "q"):
-            self.dir = DIR
+            self.dir = ""
         else:
             self.dir = AUD_DIR
         self.filename = filename

@@ -42,7 +42,7 @@ export default function SearchAlbum() {
 			const formData = new FormData();
 			formData.append("file", selectedFile);
 
-			const response = await fetch("http//localhost:8000/search/album", {
+			const response = await fetch("http://localhost:8000/search/album", {
 				method: "POST",
 				body: formData,
 			});

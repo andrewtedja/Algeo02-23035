@@ -8,5 +8,3 @@ Folder ini dapat memiliki struktur sebagai berikut:
   - Berisi file gambar untuk pengujian fitur **image retrieval**.
 - **`music/`**:
   - Berisi file metadata atau file audio untuk pengujian fitur **music information retrieval**.
-- **`expected_output/`**:
-  - Berisi output yang diharapkan dari pengujian untuk dibandingkan dengan hasil program.

@@ -13,6 +13,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+UPLOADS_DIR = os.path.join(BASE_DIR, "src", "uploads")
+DATASETS_DIR = os.path.join(BASE_DIR, "src", "datasets")
 def clear_directory(dir_path: str):
     if os.path.exists(dir_path):
         for filename in os.listdir(dir_path):
@@ -24,7 +27,7 @@ def clear_directory(dir_path: str):
 
 @app.post("/upload/album")
 async def upload_album(file: UploadFile = File(...)):
-    albums_dir = os.path.join("src", "uploads", "album")
+    albums_dir = os.path.join(UPLOADS_DIR, "album")
     os.makedirs(albums_dir, exist_ok=True)
     clear_directory(albums_dir)  # Clear old files before saving new one
 
@@ -37,7 +40,7 @@ async def upload_album(file: UploadFile = File(...)):
 
 @app.post("/upload/audio")
 async def upload_audio(file: UploadFile = File(...)):
-    audio_dir = os.path.join("src", "uploads", "audio")
+    audio_dir = os.path.join(UPLOADS_DIR, "audio")
     os.makedirs(audio_dir, exist_ok=True)
     clear_directory(audio_dir)  # Clear old files
 
@@ -50,11 +53,10 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.post("/upload/dataset")
 async def upload_dataset(file: UploadFile = File(...)):
-    datasets_dir = os.path.join("src", "datasets")
-    os.makedirs(datasets_dir, exist_ok=True)
-    clear_directory(datasets_dir)  # Clear old files
+    os.makedirs(DATASETS_DIR, exist_ok=True)
+    clear_directory(DATASETS_DIR)  # Clear old files
 
-    dataset_path = os.path.join(datasets_dir, file.filename)
+    dataset_path = os.path.join(DATASETS_DIR, file.filename)
     with open(dataset_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
@@ -63,11 +65,10 @@ async def upload_dataset(file: UploadFile = File(...)):
 
 @app.post("/upload/mapper")
 async def upload_mapper(file: UploadFile = File(...)):
-    datasets_dir = os.path.join("src", "datasets")
-    os.makedirs(datasets_dir, exist_ok=True)
-    clear_directory(datasets_dir)  # Clear old files
+    os.makedirs(DATASETS_DIR, exist_ok=True)
+    clear_directory(DATASETS_DIR)  # Clear old files
 
-    mapper_path = os.path.join(datasets_dir, file.filename)
+    mapper_path = os.path.join(DATASETS_DIR, file.filename)
     with open(mapper_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Layout } from "@/components/layout";
 import { Button } from "@/components/ui/button";
@@ -14,24 +15,58 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useState } from "react";
 
 export default function SearchAlbum() {
-	// MOCK DATA
-	const mockData = Array.from({ length: 50 }, (_, index) => ({
-		id: index + 1,
-		title: `Song Title ${index + 1}`,
-		artist: `Artist ${index + 1}`,
-	}));
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+	const [uploadError, setUploadError] = useState<string | null>(null);
 
-	const [currentPage, setCurrentPage] = useState(1);
+	const [searchResults, setSearchResults] = useState<any[]>([]);
+	const [searchRuntime, setSearchRuntime] = useState<number | null>(null);
+
+	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0] || null;
+		setSelectedFile(file);
+		setUploadMessage(null);
+		setUploadError(null);
+	};
+
+	const handleSearch = async () => {
+		if (!selectedFile) {
+			return;
+		}
+		setUploadError(null);
+		setUploadMessage(null);
+
+		try {
+			const formData = new FormData();
+			formData.append("file", selectedFile);
+
+			const response = await fetch("http//localhost:8000/search/album", {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) {
+				throw new Error("Search failed.");
+			}
+			const data = await response.json();
+			setSearchResults(data.results);
+			setSearchRuntime(data.runtime);
+		} catch (err: any) {
+			setUploadError(err.message);
+		}
+	};
+
+	///////////////////// PAGINATION /////////////////////
 	const itemsPerPage = 10;
-	const totalPages = Math.ceil(mockData.length / itemsPerPage);
+	const totalPages = Math.ceil(searchResults.length / itemsPerPage);
+	const [currentPage, setCurrentPage] = useState(1);
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = mockData.slice(indexOfFirstItem, indexOfLastItem);
+	const currentItems = searchResults.slice(indexOfFirstItem, indexOfLastItem);
 
-	const handlePageChange = (pageNumber) => {
+	const handlePageChange = (pageNumber: number) => {
 		if (pageNumber < 1 || pageNumber > totalPages) return;
 		setCurrentPage(pageNumber);
 	};
@@ -44,48 +79,6 @@ export default function SearchAlbum() {
 		handlePageChange(currentPage + 1);
 	};
 
-	////////////////////////////////////////////////
-
-	const [selectedFile, setSelectedFile] = useState(null);
-	const [uploadMessage, setUploadMessage] = useState(null);
-	const [uploadError, setUploadError] = useState(null);
-
-	const handleFileChange = (event) => {
-		const file = event.target.files[0];
-		setSelectedFile(file);
-		setUploadMessage(null);
-		setUploadError(null);
-	};
-
-	const uploadFile = async (file) => {
-		setUploadError(null);
-		setUploadMessage(null);
-		try {
-			const formData = new FormData();
-			formData.append("file", file);
-
-			const response = await fetch("http://localhost:8000/upload/album", {
-				method: "POST",
-				body: formData,
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to upload album cover");
-			}
-
-			const data = await response.json();
-			setUploadMessage(data.message);
-		} catch (err) {
-			throw err;
-		}
-	};
-
-	const handleSearch = () => {
-		if (selectedFile) {
-			uploadFile(selectedFile);
-		}
-	};
-
 	return (
 		<Layout title="Album Finder">
 			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -94,7 +87,11 @@ export default function SearchAlbum() {
 						<Images className="text-emerald-500" size={40} />
 						Search by Album
 					</h1>
-					<Button className="hover:bg-black hover:text-white transition duration-500">
+					<Button
+						className="hover:bg-black hover:text-white transition duration-500"
+						onClick={handleSearch}
+						disabled={!selectedFile}
+					>
 						<Search className="mr-2" /> Search
 					</Button>
 				</div>
@@ -114,8 +111,7 @@ export default function SearchAlbum() {
 						/>
 						<div className="flex flex-col items-center justify-center space-y-4">
 							<Upload
-								className="text-emerald-500 group-hover:text-emerald-600 
-								transition-colors duration-300"
+								className="text-emerald-500 group-hover:text-emerald-600 transition-colors duration-300"
 								size={64}
 								strokeWidth={1.5}
 							/>
@@ -135,7 +131,7 @@ export default function SearchAlbum() {
 						disabled={!selectedFile}
 						onClick={handleSearch}
 					>
-						<Upload className="mr-2" /> Upload Image
+						<Upload className="mr-2" /> Upload &amp; Search
 					</Button>
 					{uploadMessage && (
 						<p className="text-green-600 mt-2">{uploadMessage}</p>
@@ -145,80 +141,89 @@ export default function SearchAlbum() {
 					)}
 				</div>
 
-				{/* MOCK RESULTS */}
-				<div className="mb-8">
-					<div className="flex justify-between items-center mb-4">
-						<h2 className="text-3xl font-bold text-gray-900">
-							Search Results
-						</h2>
-						<p className="text-muted-foreground">
-							Runtime: 0.342 seconds
-						</p>
-					</div>
+				{/* Search Results */}
+				{searchResults.length > 0 && (
+					<div className="mb-8">
+						<div className="flex justify-between items-center mb-4">
+							<h2 className="text-3xl font-bold text-gray-900">
+								Search Results
+							</h2>
+							<p className="text-muted-foreground">
+								Runtime:{" "}
+								{searchRuntime
+									? `${searchRuntime.toFixed(3)} seconds`
+									: "N/A"}
+							</p>
+						</div>
 
-					<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
-						{[...Array(10)].map((_, i) => (
-							<Card
-								key={i}
-								className="overflow-hidden hover:shadow-md
-								transition-all duration-100 transform cursor-pointer
-								hover:-translate-y-2 border-2 border-transparent 
-								border-slate-300"
-							>
-								<div className="aspect-square relative group">
-									<Image
-										src="/placeholder.svg"
-										alt="Album cover"
-										layout="fill"
-										objectFit="cover"
-										className="transition-transform duration-300 group-hover:scale-110"
-									/>
-								</div>
-								<div className="p-5">
-									<h3 className="font-bold text-xl text-gray-900 mb-1">
-										Album Title
-									</h3>
-									<p className="text-muted-foreground mb-2">
-										Artist Name
-									</p>
-									<Badge
-										variant="secondary"
-										className="bg-slate-100 text-slate-800"
-									>
-										Match: 94.6%
-									</Badge>
-								</div>
-							</Card>
-						))}
-					</div>
-				</div>
-
-				<Pagination className="cursor-pointer">
-					<PaginationContent>
-						<PaginationItem>
-							<PaginationPrevious
-								onClick={handlePrevious}
-								disabled={currentPage === 1}
-							/>
-						</PaginationItem>
-						{Array.from({ length: totalPages }, (_, index) => (
-							<PaginationItem key={index + 1}>
-								<PaginationLink
-									onClick={() => handlePageChange(index + 1)}
-									isActive={currentPage === index + 1}
+						<div className="grid grid-cols-4 lg:grid-cols-5 gap-6">
+							{currentItems.map((item: any, i: number) => (
+								<Card
+									key={i}
+									className="overflow-hidden hover:shadow-md transition-all duration-100 transform cursor-pointer hover:-translate-y-2 border-2 border-transparent border-slate-300"
 								>
-									{index + 1}
-								</PaginationLink>
+									<div className="aspect-square relative group">
+										<Image
+											src="/placeholder.svg"
+											alt="Album cover"
+											layout="fill"
+											objectFit="cover"
+											className="transition-transform duration-300 group-hover:scale-110"
+										/>
+									</div>
+									<div className="p-5">
+										<h3 className="font-bold text-xl text-gray-900 mb-1">
+											{item.image_name || "Unknown Image"}
+										</h3>
+										<p className="text-muted-foreground mb-2">
+											{item.audio_name ||
+												"No corresponding audio"}
+										</p>
+										<Badge
+											variant="secondary"
+											className="bg-slate-100 text-slate-800"
+										>
+											Match:{" "}
+											{(item.similarity * 100).toFixed(2)}
+											%
+										</Badge>
+									</div>
+								</Card>
+							))}
+						</div>
+					</div>
+				)}
+
+				{searchResults.length > 0 && totalPages > 1 && (
+					<Pagination className="cursor-pointer">
+						<PaginationContent>
+							<PaginationItem>
+								<PaginationPrevious
+									onClick={handlePrevious}
+									disabled={currentPage === 1}
+								/>
 							</PaginationItem>
-						))}
-						<PaginationItem>
-							<PaginationNext
-								onClick={handleNext}
-								disabled={currentPage === totalPages}
-							/>
-						</PaginationItem>
-					</PaginationContent>
-				</Pagination>
+							{Array.from({ length: totalPages }, (_, index) => (
+								<PaginationItem key={index + 1}>
+									<PaginationLink
+										onClick={() =>
+											handlePageChange(index + 1)
+										}
+										isActive={currentPage === index + 1}
+									>
+										{index + 1}
+									</PaginationLink>
+								</PaginationItem>
+							))}
+							<PaginationItem>
+								<PaginationNext
+									onClick={handleNext}
+									disabled={currentPage === totalPages}
+								/>
+							</PaginationItem>
+						</PaginationContent>
+					</Pagination>
+				)}
 			</div>
 		</Layout>
 	);

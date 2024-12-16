@@ -87,13 +87,6 @@ export default function SearchAlbum() {
 						<Images className="text-emerald-500" size={40} />
 						Search by Album
 					</h1>
-					<Button
-						className="hover:bg-black hover:text-white transition duration-500"
-						onClick={handleSearch}
-						disabled={!selectedFile}
-					>
-						<Search className="mr-2" /> Search
-					</Button>
 				</div>
 
 				<div className="mb-12">

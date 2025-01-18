@@ -69,8 +69,7 @@ pip install -r requirements.txt
 ```
  <h3>Usage</h3> 
 1. Run next  
-```
+
+```sh
 npm run dev
-```
-  
  

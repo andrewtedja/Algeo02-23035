@@ -52,29 +52,25 @@ SongSmart makes finding images and music as intuitive as a hum or a click. 🚀
 1 . Clone the repo
 
 ```sh
-    git clone git@github.com:grwna/Algeo02-23035.git
+git clone git@github.com:grwna/Algeo02-23035.git
 ```
 <p align="center">or</p>
 
 ```sh
-   git clone https://github.com/grwna/Algeo02-23035.git
+git clone https://github.com/grwna/Algeo02-23035.git
 ```
 2 . Install NPM packages
 ```sh
-   npm install
+npm install
 ```
 3 . Install Python dependencies
 ```sh
-   pip install -r requirements.txt
+pip install -r requirements.txt
 ```
  <h3>Usage</h3> 
 1. Run next  
-
 ```
-  cd src
-```
-```
-  npm run dev
+npm run dev
 ```
   
  
